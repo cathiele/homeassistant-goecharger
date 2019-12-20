@@ -4,9 +4,7 @@ import ipaddress
 from datetime import timedelta
 import homeassistant.helpers.config_validation as cv
 from homeassistant.const import (CONF_HOST, CONF_SCAN_INTERVAL)
-from homeassistant.helpers.event import track_point_in_utc_time
 from homeassistant.util.dt import utcnow
-from homeassistant.helpers.dispatcher import dispatcher_send
 
 from goecharger import GoeCharger
 
@@ -28,21 +26,15 @@ CONFIG_SCHEMA = vol.Schema({
 
 def setup(hass, config):
     """Set up go-eCharger Sensor platform."""
+
     interval = config[DOMAIN].get(CONF_SCAN_INTERVAL)
+    host = config[DOMAIN][CONF_HOST]
+    goeCharger = GoeCharger(host)
+    status = goeCharger.requestStatus()
+    hass.data[DOMAIN] = status
+    hass.data[DOMAIN]['age'] = utcnow().timestamp()
 
-    def update(now):
-        try:
-            goeCharger = GoeCharger(config[DOMAIN][CONF_HOST])
-            status = goeCharger.requestStatus()
-            hass.data[DOMAIN] = status
-            return True
+    hass.helpers.discovery.load_platform('sensor', DOMAIN, {CONF_HOST: host}, config)
+    hass.helpers.discovery.load_platform('switch', DOMAIN, {CONF_HOST: host}, config)
 
-        finally:
-            track_point_in_utc_time(hass, update, utcnow() + interval)
-
-    success = update(utcnow())
-
-    if success:
-        hass.helpers.discovery.load_platform('sensor', DOMAIN, {}, config)
-
-    return success
+    return True

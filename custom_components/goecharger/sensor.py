@@ -1,7 +1,10 @@
 """Platform for go-eCharger sensor integration."""
 import logging
+from homeassistant.util.dt import utcnow
 from homeassistant.const import (TEMP_CELSIUS, ENERGY_KILO_WATT_HOUR)
 from homeassistant.helpers.entity import Entity
+from homeassistant.const import CONF_HOST
+
 from goecharger import GoeCharger
 
 from . import DOMAIN
@@ -17,8 +20,14 @@ _LOGGER = logging.getLogger(__name__)
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up go-eCharger Sensor platform."""
 
-    entities = []
+    if discovery_info == None:
+        return
+
     serial = hass.data[DOMAIN]['serial_number']
+
+    goeCharger = GoeCharger(discovery_info[CONF_HOST])
+
+    entities = []
 
     sensorUnits= {
         'charger_temp': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp' },
@@ -48,27 +57,29 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     }
 
     for sensor in hass.data[DOMAIN]:
-        _LOGGER.debug('adding Sensor: %s' % sensor)
-        sensorUnit = sensorUnits.get(sensor).get('unit') if sensorUnits.get(sensor) else ''
-        sensorName = sensorUnits.get(sensor).get('name') if sensorUnits.get(sensor) else sensor
-        entities.append(GoeChargerSensor(hass, f"goecharger_{serial}_{sensor}", sensorName, sensor, sensorUnit))
+        if sensor != 'allow_charging':
+            _LOGGER.debug('adding Sensor: %s' % sensor)
+            sensorUnit = sensorUnits.get(sensor).get('unit') if sensorUnits.get(sensor) else ''
+            sensorName = sensorUnits.get(sensor).get('name') if sensorUnits.get(sensor) else sensor
+            entities.append(GoeChargerSensor(hass, goeCharger, f"sensor.goecharger_{serial}_{sensor}", sensorName, sensor, sensorUnit))
 
     add_entities(entities)
 
 class GoeChargerSensor(Entity):
-    def __init__(self, hass, entity_id, name, attribute, unit):
+    def __init__(self, hass, goeCharger,entity_id, name, attribute, unit):
         """Initialize the go-eCharger sensor."""
         self._entity_id = entity_id
         self._name = name
         self._attribute = attribute
         self._unit = unit
         self.hass = hass
+        self._goeCharger = goeCharger
         self._state = None
 
     @property
     def entity_id(self):
         """Return the entity_id of the sensor."""
-        return f'sensor.{self._entity_id}'
+        return self._entity_id
 
     @property
     def name(self):
@@ -89,4 +100,9 @@ class GoeChargerSensor(Entity):
         """Fetch new state data for the sensor.
         This is the only method that should fetch new data for Home Assistant.
         """
+        if self.hass.data[DOMAIN]['age'] + 1 < utcnow().timestamp():
+            _LOGGER.debug('Updating status...')
+            self.hass.data[DOMAIN] = self._goeCharger.requestStatus()
+            self.hass.data[DOMAIN]['age'] = utcnow().timestamp()
+
         self._state = self.hass.data[DOMAIN][self._attribute]
