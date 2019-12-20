@@ -27,4 +27,4 @@ goecharger:
 ```
 
 # Sample View
-[screenshot of Home Assistant](https://github.com/cathiele/homeassistant-goecharger/blob/master/doc/ha_entity_view.png)
+![screenshot of Home Assistant](doc/ha_entity_view.png)
