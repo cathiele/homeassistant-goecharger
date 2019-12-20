@@ -1,4 +1,4 @@
-# Homeassistant integration for the go-eCharger (WIP)
+# Home Assistant integration for the go-eCharger (WIP)
 
 Integration for Homeassistant to view and Control the go-eCharger for electric Vehicles
 
