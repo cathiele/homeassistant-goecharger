@@ -26,7 +26,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         'p_l2' : { 'unit': POWER_KILO_WATT, 'name': 'Power L2'},
         'p_l3' : { 'unit': POWER_KILO_WATT, 'name': 'Power L3'},
         'p_n' : { 'unit': POWER_KILO_WATT, 'name': 'Power N'},
-        'p_all' : { 'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Power All'},
+        'p_all' : { 'unit': POWER_KILO_WATT, 'name': 'Power All'},
         'current_session_charged_energy': { 'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Current Session charged'},
         'energy_total': { 'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Total Charged'},
         'charge_limit': { 'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Charge limit'},
