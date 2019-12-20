@@ -1,0 +1,9 @@
+{
+    "domain": "goecharger",
+    "name": "go-eCharger",
+    "documentation": "https://github.com/cathiele/homeassistant-goecharger",
+    "dependencies": [],
+    "codeowners": ["@cathiele"],
+    "requirements": ["goecharger==0.0.6"]
+  }
+  
