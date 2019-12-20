@@ -2,6 +2,10 @@
 
 Integration for Homeassistant to view and Control the go-eCharger for electric Vehicles
 
+## Features
+- attributes from charger available as sensors
+- switch to turn off/on charger
+
 # Warning: WIP - Breaking changes possible
 This is the first version of the Integration so there are still breaking chnages possible.
 
