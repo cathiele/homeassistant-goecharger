@@ -1,0 +1,6 @@
+set_max_current:
+    description: Sets the maximum current in Ampere of the Charger.
+    fields:
+      max_current:
+        description: current to be set (6-32)
+        example: '16'

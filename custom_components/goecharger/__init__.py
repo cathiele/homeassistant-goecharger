@@ -9,6 +9,8 @@ from homeassistant.util.dt import utcnow
 from goecharger import GoeCharger
 
 DOMAIN='goecharger'
+ABSOLUTE_MAX_CURRENT='charger_absolute_max_current'
+SET_MAX_CURRENT_ATTR='max_current'
 
 MIN_UPDATE_INTERVAL = timedelta(seconds=10)
 DEFAULT_UPDATE_INTERVAL = timedelta(seconds=20)
@@ -25,13 +27,29 @@ CONFIG_SCHEMA = vol.Schema({
 }, extra=vol.ALLOW_EXTRA)
 
 def setup(hass, config):
-    """Set up go-eCharger Sensor platform."""
+    """Set up go-eCharger platforms and services."""
 
     interval = config[DOMAIN].get(CONF_SCAN_INTERVAL)
     host = config[DOMAIN][CONF_HOST]
     goeCharger = GoeCharger(host)
     status = goeCharger.requestStatus()
     hass.data[DOMAIN] = status
+    hass.data[DOMAIN]['age'] = utcnow().timestamp()
+
+    def handle_set_max_current(call):
+        """Handle the service call."""
+        maxCurrent = call.data.get(SET_MAX_CURRENT_ATTR, hass.data[DOMAIN][ABSOLUTE_MAX_CURRENT])
+        if isinstance(maxCurrent, str):
+            maxCurrent = int(maxCurrent)
+
+        if maxCurrent < 6:
+            maxCurrent = 6
+        if maxCurrent > 32:
+            maxCurrent = 32
+        hass.data[DOMAIN] = goeCharger.setMaxCurrent(maxCurrent)
+        hass.data[DOMAIN]['age'] = utcnow().timestamp()
+
+    hass.services.register(DOMAIN, 'set_max_current', handle_set_max_current)
     hass.data[DOMAIN]['age'] = utcnow().timestamp()
 
     hass.helpers.discovery.load_platform('sensor', DOMAIN, {CONF_HOST: host}, config)

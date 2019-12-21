@@ -46,7 +46,8 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         'i_l1': { 'unit': AMPERE, 'name': 'Current L1'},
         'i_l2': { 'unit': AMPERE, 'name': 'Current L2'},
         'i_l3': { 'unit': AMPERE, 'name': 'Current L3'},
-        'charger_current_pwm': { 'unit': AMPERE, 'name': 'Charger current setting'},
+        'charger_max_current': { 'unit': AMPERE, 'name': 'Charger max current setting'},
+        'charger_absolute_max_current': { 'unit': AMPERE, 'name': 'Charger absolute max current setting'},
         'cable_max_current': { 'unit': AMPERE, 'name': 'Cable max current'},
         'unlocked_by_card': { 'unit': CARD_ID, 'name': 'Card used'},
         'lf_l1': { 'unit': PERCENT, 'name': 'Loadfactor L1'},
@@ -57,7 +58,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     }
 
     for sensor in hass.data[DOMAIN]:
-        if sensor != 'allow_charging':
+        if sensor not in  ('allow_charging', 'age'):
             _LOGGER.debug('adding Sensor: %s' % sensor)
             sensorUnit = sensorUnits.get(sensor).get('unit') if sensorUnits.get(sensor) else ''
             sensorName = sensorUnits.get(sensor).get('name') if sensorUnits.get(sensor) else sensor
