@@ -5,10 +5,12 @@ Integration for Homeassistant to view and Control the go-eCharger for electric V
 ## Features
 - attributes from charger available as sensors
 - switch to turn off/on charger
+- set charge limit in kWh (0.1 kWh steps)
+- set max current for charging in ampere (6-32A)
+- set absolute maximum current for charging (max can not be set higher than "absolute max")
 
 # Warning: WIP - Breaking changes possible
 This is the first version of the Integration so there are still breaking chnages possible.
-
 
 # Installation
 
@@ -135,6 +137,6 @@ entities:
   - entity: sensor.goecharger_111111_i_l3
   - entity: sensor.goecharger_111111_energy_total
 show_header_toggle: false
-title: EV Charger  (go-eCharger)
+title: EV Charger (go-eCharger)
 type: entities
 ```
