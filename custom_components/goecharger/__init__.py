@@ -10,6 +10,7 @@ from goecharger import GoeCharger
 
 DOMAIN='goecharger'
 ABSOLUTE_MAX_CURRENT='charger_absolute_max_current'
+CHARGE_LIMIT='charge_limit'
 SET_MAX_CURRENT_ATTR='max_current'
 
 MIN_UPDATE_INTERVAL = timedelta(seconds=10)
@@ -49,8 +50,19 @@ def setup(hass, config):
         hass.data[DOMAIN] = goeCharger.setMaxCurrent(maxCurrent)
         hass.data[DOMAIN]['age'] = utcnow().timestamp()
 
+    def handle_set_charge_limit(call):
+        """Handle the service call."""
+        chargeLimit = call.data.get(CHARGE_LIMIT, 0.0)
+        if isinstance(chargeLimit, str):
+            chargeLimit = float(chargeLimit)
+
+        if chargeLimit < 0:
+            chargeLimit = 0
+        hass.data[DOMAIN] = goeCharger.setChargeLimit(chargeLimit)
+        hass.data[DOMAIN]['age'] = utcnow().timestamp()
+
     hass.services.register(DOMAIN, 'set_max_current', handle_set_max_current)
-    hass.data[DOMAIN]['age'] = utcnow().timestamp()
+    hass.services.register(DOMAIN, 'set_charge_limit', handle_set_charge_limit)
 
     hass.helpers.discovery.load_platform('sensor', DOMAIN, {CONF_HOST: host}, config)
     hass.helpers.discovery.load_platform('switch', DOMAIN, {CONF_HOST: host}, config)

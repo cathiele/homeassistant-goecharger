@@ -4,3 +4,9 @@ set_max_current:
       max_current:
         description: current to be set (6-32)
         example: '16'
+set_charge_limit:
+  description: Sets the charge limit in kWh of the Charger.
+  fields:
+    max_current:
+      description: charge limit in kWh example '2.5'
+      example: '2.5'
