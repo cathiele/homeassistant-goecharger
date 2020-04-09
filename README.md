@@ -1,6 +1,6 @@
 # Home Assistant integration for the go-eCharger (WIP)
 
-Integration for Homeassistant to view and Control the go-eCharger for electric Vehicles
+Integration for Homeassistant to view and Control the go-eCharger for electric Vehicles via the local ip-interface.
 
 ## Features
 - attributes from charger available as sensors
@@ -8,9 +8,10 @@ Integration for Homeassistant to view and Control the go-eCharger for electric V
 - set charge limit in kWh (0.1 kWh steps)
 - set max current for charging in ampere (6-32A)
 - set absolute maximum current for charging (max can not be set higher than "absolute max")
+- no cloud connection needed to control the charger - only local ip-access needed.
 
 # Warning: WIP - Breaking changes possible
-This is the first version of the Integration so there are still breaking chnages possible.
+This is the first version of the Integration so there are still breaking changes possible.
 
 # Installation
 
