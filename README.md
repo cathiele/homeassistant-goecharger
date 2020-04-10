@@ -26,11 +26,19 @@ git clone https://github.com/cathiele/homeassistant-goecharger.git
 # cp -r custom_components/goecharger <your-ha-config-dir>/custom_components
 ```
 
-* setup your Charger in the `configuration.yml`
+* setup your Charger in the `configuration.yml` (for always connected chargers):
 
 ```yml
 goecharger:
   host: <ip of your charger>
+```
+
+* OPTIONAL: if your charger may not be connected when your home-assistant restarts add your chargers serial number (eg. '111111') to your `configuration.yml`:
+
+```yml
+goecharger:
+  host: <ip of your charger>
+  serial: '<serial number of your charger>'
 ```
 
 # Sample View

@@ -1,5 +1,4 @@
 import voluptuous as vol
-import logging
 import ipaddress
 from datetime import timedelta
 import homeassistant.helpers.config_validation as cv
@@ -8,14 +7,16 @@ from homeassistant.util.dt import utcnow
 
 from goecharger import GoeCharger
 
-DOMAIN='goecharger'
-ABSOLUTE_MAX_CURRENT='charger_absolute_max_current'
-SET_ABSOLUTE_MAX_CURRENT_ATTR='absolute_max_current'
-CHARGE_LIMIT='charge_limit'
-SET_MAX_CURRENT_ATTR='max_current'
+DOMAIN = 'goecharger'
+ABSOLUTE_MAX_CURRENT = 'charger_absolute_max_current'
+SET_ABSOLUTE_MAX_CURRENT_ATTR = 'charger_absolute_max_current'
+CHARGE_LIMIT = 'charge_limit'
+SET_MAX_CURRENT_ATTR = 'max_current'
 
 MIN_UPDATE_INTERVAL = timedelta(seconds=10)
 DEFAULT_UPDATE_INTERVAL = timedelta(seconds=20)
+
+CONF_SERIAL = 'serial'
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
@@ -23,18 +24,27 @@ CONFIG_SCHEMA = vol.Schema({
             CONF_HOST
         ): vol.All(ipaddress.ip_address, cv.string),
         vol.Optional(
-            CONF_SCAN_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): 
-            vol.All(cv.time_period, vol.Clamp(min=MIN_UPDATE_INTERVAL))
+            CONF_SERIAL
+        ): vol.All(cv.string),
+        vol.Optional(
+            CONF_SCAN_INTERVAL, default=DEFAULT_UPDATE_INTERVAL):
+                vol.All(cv.time_period, vol.Clamp(min=MIN_UPDATE_INTERVAL))
     })
 }, extra=vol.ALLOW_EXTRA)
+
 
 def setup(hass, config):
     """Set up go-eCharger platforms and services."""
 
-    interval = config[DOMAIN].get(CONF_SCAN_INTERVAL)
+    # interval = config[DOMAIN].get(CONF_SCAN_INTERVAL)
     host = config[DOMAIN][CONF_HOST]
+    serial = config[DOMAIN].get(CONF_SERIAL, 'unknown')
     goeCharger = GoeCharger(host)
     status = goeCharger.requestStatus()
+
+    if status.get('serial_number') == 'unknown':
+        status['serial_number'] = serial
+        
     hass.data[DOMAIN] = status
     hass.data[DOMAIN]['age'] = utcnow().timestamp()
 
