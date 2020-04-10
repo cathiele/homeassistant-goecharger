@@ -10,9 +10,10 @@ from . import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up go-eCharger Switch platform."""
-    if discovery_info == None:
+    if discovery_info is None:
         return
 
     serial = hass.data[DOMAIN]['serial_number']
@@ -20,7 +21,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     goeCharger = GoeCharger(discovery_info[CONF_HOST])
 
     attribute = 'allow_charging'
-    add_entities([GoeChargerSwitch(hass, goeCharger, f'switch.goecharger_{serial}_{attribute}', 'Charging allowed', attribute)])
+    add_entities(
+        [
+            GoeChargerSwitch(hass, goeCharger, f'switch.goecharger_{serial}_{attribute}', 'Charging allowed', attribute)
+        ]
+    )
+
 
 class GoeChargerSwitch(SwitchDevice):
     def __init__(self, hass, goeCharger, entity_id, name, attribute):
