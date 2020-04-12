@@ -1,5 +1,7 @@
 # Home Assistant integration for the go-eCharger (WIP)
 
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+
 Integration for Homeassistant to view and Control the go-eCharger for electric Vehicles via the local ip-interface.
 
 ## Features
