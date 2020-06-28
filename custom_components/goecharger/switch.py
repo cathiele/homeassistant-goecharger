@@ -1,7 +1,7 @@
 """Platform for go-eCharger switch integration."""
 import logging
 from homeassistant.util.dt import utcnow
-from homeassistant.components.switch import SwitchDevice
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import CONF_HOST
 
 from goecharger import GoeCharger
@@ -16,19 +16,25 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     if discovery_info is None:
         return
 
-    serial = hass.data[DOMAIN]['serial_number']
+    serial = hass.data[DOMAIN]["serial_number"]
 
     goeCharger = GoeCharger(discovery_info[CONF_HOST])
 
-    attribute = 'allow_charging'
+    attribute = "allow_charging"
     add_entities(
         [
-            GoeChargerSwitch(hass, goeCharger, f'switch.goecharger_{serial}_{attribute}', 'Charging allowed', attribute)
+            GoeChargerSwitch(
+                hass,
+                goeCharger,
+                f"switch.goecharger_{serial}_{attribute}",
+                "Charging allowed",
+                attribute,
+            )
         ]
     )
 
 
-class GoeChargerSwitch(SwitchDevice):
+class GoeChargerSwitch(SwitchEntity):
     def __init__(self, hass, goeCharger, entity_id, name, attribute):
         """Initialize the go-eCharger sensor."""
         self._entity_id = entity_id
@@ -65,9 +71,9 @@ class GoeChargerSwitch(SwitchDevice):
         """Fetch new state data for the switch.
         This is the only method that should fetch new data for Home Assistant.
         """
-        if self.hass.data[DOMAIN]['age'] + 1 < utcnow().timestamp():
-            _LOGGER.debug('Updating status...')
+        if self.hass.data[DOMAIN]["age"] + 1 < utcnow().timestamp():
+            _LOGGER.debug("Updating status...")
             self.hass.data[DOMAIN] = self._goeCharger.requestStatus()
-            self.hass.data[DOMAIN]['age'] = utcnow().timestamp()
+            self.hass.data[DOMAIN]["age"] = utcnow().timestamp()
 
-        self._state = True if self.hass.data[DOMAIN][self._attribute] == 'on' else False
+        self._state = True if self.hass.data[DOMAIN][self._attribute] == "on" else False
