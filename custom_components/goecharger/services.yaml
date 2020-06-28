@@ -1,18 +1,18 @@
 set_max_current:
-    description: Sets the maximum current in Ampere of the Charger.
-    fields:
-      max_current:
-        description: current to be set (6-32)
-        example: '16'
+  description: Sets the maximum current in Ampere of the Charger.
+  fields:
+    max_current:
+      description: current to be set (6-32)
+      example: "16"
 set_absolute_max_current:
-    description: Sets the absolute maximum current in Ampere of the Charger.
-    fields:
-      absolute_max_current:
-        description: absolute maximum current to be set (6-32)
-        example: '16'
+  description: Sets the absolute maximum current in Ampere of the Charger.
+  fields:
+    charger_absolute_max_current:
+      description: absolute maximum current to be set (6-32)
+      example: "16"
 set_charge_limit:
   description: Sets the charge limit in kWh of the Charger.
   fields:
     charge_limit:
       description: charge limit in kWh example '2.5'
-      example: '2.5'
+      example: "2.5"
