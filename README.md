@@ -35,7 +35,7 @@ goecharger:
   host: <ip of your charger>
 ```
 
-* OPTIONAL: if your charger may not be connected when your home-assistant restarts add your chargers serial number (eg. '111111') to your `configuration.yml`:
+* OPTIONAL: if your charger may not be connected when your home-assistant restarts add your chargers serial number (eg. '111111') without the 'CM-02-' prefix to your `configuration.yml`:
 
 ```yml
 goecharger:
