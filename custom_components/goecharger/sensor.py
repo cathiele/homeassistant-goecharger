@@ -49,6 +49,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         'i_l3': {'unit': AMPERE, 'name': 'Current L3'},
         'charger_max_current': {'unit': AMPERE, 'name': 'Charger max current setting'},
         'charger_absolute_max_current': {'unit': AMPERE, 'name': 'Charger absolute max current setting'},
+        'cable_lock_mode': {'unit': '', 'name': 'Cable lock mode'},
         'cable_max_current': {'unit': AMPERE, 'name': 'Cable max current'},
         'unlocked_by_card': {'unit': CARD_ID, 'name': 'Card used'},
         'lf_l1': {'unit': PERCENT, 'name': 'Loadfactor L1'},

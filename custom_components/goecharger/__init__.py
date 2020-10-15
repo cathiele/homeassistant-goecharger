@@ -14,6 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "goecharger"
 ABSOLUTE_MAX_CURRENT = "charger_absolute_max_current"
+SET_CABLE_LOCK_MODE_ATTR = "cable_lock_mode"
 SET_ABSOLUTE_MAX_CURRENT_ATTR = "charger_absolute_max_current"
 CHARGE_LIMIT = "charge_limit"
 SET_MAX_CURRENT_ATTR = "max_current"
@@ -104,6 +105,31 @@ def setup(hass, config):
         hass.data[DOMAIN] = goeCharger.setAbsoluteMaxCurrent(absoluteMaxCurrent)
         hass.data[DOMAIN]["age"] = utcnow().timestamp()
 
+    def handle_set_cable_lock_mode(call):
+        """Handle the service call to set the absolute max current."""
+        cableLockModeInput = call.data.get(SET_CABLE_LOCK_MODE_ATTR, 0)
+        if isinstance(cableLockModeInput, str):
+            if cableLockModeInput.isnumeric():
+                cableLockMode = int(cableLockModeInput)
+            elif valid_entity_id(cableLockModeInput):
+                cableLockMode = int(hass.states.get(cableLockModeInput).state)
+            else:
+                _LOGGER.error(
+                    "No valid value for '%s': %s",
+                    SET_CABLE_LOCK_MODE_ATTR,
+                    cableLockModeInput,
+                )
+                return
+        else:
+            cableLockMode = cableLockModeInput
+
+        if cableLockModeInput < 0:
+            cableLockMode = 0
+        if cableLockMode > 2:
+            cableLockMode = 2
+        hass.data[DOMAIN] = goeCharger.setCableLockMode(cableLockMode)
+        hass.data[DOMAIN]["age"] = utcnow().timestamp()
+
     def handle_set_charge_limit(call):
         """Handle the service call to set charge limit."""
         chargeLimitInput = call.data.get(CHARGE_LIMIT, 0.0)
@@ -129,6 +155,7 @@ def setup(hass, config):
     hass.services.register(
         DOMAIN, "set_absolute_max_current", handle_set_absolute_max_current
     )
+    hass.services.register(DOMAIN, "set_cable_lock_mode", handle_set_cable_lock_mode)
     hass.services.register(DOMAIN, "set_charge_limit", handle_set_charge_limit)
 
     hass.helpers.discovery.load_platform("sensor", DOMAIN, {CONF_HOST: host}, config)

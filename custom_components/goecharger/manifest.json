@@ -4,6 +4,6 @@
     "documentation": "https://github.com/cathiele/homeassistant-goecharger",
     "dependencies": [],
     "codeowners": ["@cathiele"],
-    "requirements": ["goecharger==0.0.10"]
+    "requirements": ["goecharger==0.0.13"]
   }
   

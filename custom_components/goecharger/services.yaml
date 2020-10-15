@@ -4,6 +4,12 @@ set_max_current:
     max_current:
       description: current to be set (6-32)
       example: "16"
+set_cable_lock_mode:
+  description: Sets the cable lock mode of the Charger.
+  fields:
+    cable_lock_mode:
+      description: lock mode for the cable connected to the charger (0=locked while car connected, 1=unlock after charging finished, 2=always locked)
+      example: "0"
 set_absolute_max_current:
   description: Sets the absolute maximum current in Ampere of the Charger.
   fields:
