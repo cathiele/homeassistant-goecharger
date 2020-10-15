@@ -110,7 +110,9 @@ class GoeChargerSensor(Entity):
         """
         if self.hass.data[DOMAIN]['age'] + 1 < utcnow().timestamp():
             _LOGGER.debug('Updating status...')
-            self.hass.data[DOMAIN] = self._goeCharger.requestStatus()
-            self.hass.data[DOMAIN]['age'] = utcnow().timestamp()
+            fetchedStatus = self._goeCharger.requestStatus()
+            if fetchedStatus.get("car", "unknown") != "unknown" or not "car" in self.hass.data[DOMAIN]:
+                self.hass.data[DOMAIN] = fetchedStatus
+                self.hass.data[DOMAIN]['age'] = utcnow().timestamp()
 
         self._state = self.hass.data[DOMAIN][self._attribute]
