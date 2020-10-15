@@ -123,11 +123,13 @@ def setup(hass, config):
         else:
             cableLockMode = cableLockModeInput
 
-        if cableLockModeInput < 0:
-            cableLockMode = 0
-        if cableLockMode > 2:
-            cableLockMode = 2
-        hass.data[DOMAIN] = goeCharger.setCableLockMode(cableLockMode)
+        cableLockModeEnum = GoeCharger.CableLockMode.UNLOCKCARFIRST
+        if cableLockModeInput == 1:
+            cableLockModeEnum = GoeCharger.CableLockMode.AUTOMATIC
+        if cableLockMode >= 2:
+            cableLockModeEnum = GoeCharger.CableLockMode.LOCKED
+
+        hass.data[DOMAIN] = goeCharger.setCableLockMode(cableLockModeEnum)
         hass.data[DOMAIN]["age"] = utcnow().timestamp()
 
     def handle_set_charge_limit(call):
