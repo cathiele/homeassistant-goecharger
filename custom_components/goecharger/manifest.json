@@ -4,6 +4,7 @@
     "version": "0.13.0",
     "documentation": "https://github.com/cathiele/homeassistant-goecharger",
     "issue_tracker": "https://github.com/cathiele/homeassistant-goecharger/issues",
+    "iot_class": "local_polling",
     "dependencies": [],
     "codeowners": ["@cathiele"],
     "requirements": ["goecharger==0.0.13"]
