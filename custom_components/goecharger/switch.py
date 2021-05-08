@@ -73,7 +73,9 @@ class GoeChargerSwitch(SwitchEntity):
         """
         if self.hass.data[DOMAIN]["age"] + 1 < utcnow().timestamp():
             _LOGGER.debug("Updating status...")
-            self.hass.data[DOMAIN] = self._goeCharger.requestStatus()
-            self.hass.data[DOMAIN]["age"] = utcnow().timestamp()
+            fetchedStatus = self._goeCharger.requestStatus()
+            if fetchedStatus.get("car_status", "unknown") != "unknown" or not "car_status" in self.hass.data[DOMAIN]:
+                self.hass.data[DOMAIN] = fetchedStatus
+                self.hass.data[DOMAIN]["age"] = utcnow().timestamp()
 
         self._state = True if self.hass.data[DOMAIN][self._attribute] == "on" else False
