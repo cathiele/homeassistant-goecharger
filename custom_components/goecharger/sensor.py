@@ -32,6 +32,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     sensorUnits = {
         'charger_temp': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+        'charger_temp0': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+        'charger_temp1': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+        'charger_temp2': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+        'charger_temp3': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
         'p_l1': {'unit': POWER_KILO_WATT, 'name': 'Power L1'},
         'p_l2': {'unit': POWER_KILO_WATT, 'name': 'Power L2'},
         'p_l3': {'unit': POWER_KILO_WATT, 'name': 'Power L3'},
