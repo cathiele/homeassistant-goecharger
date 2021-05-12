@@ -3,54 +3,95 @@ import logging
 from homeassistant.util.dt import utcnow
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import CONF_HOST
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant import core, config_entries
 
 from goecharger import GoeCharger
 
-from . import DOMAIN
+from .const import DOMAIN, CONF_CHARGERS, CONF_NAME, CHARGER_API
 
 _LOGGER = logging.getLogger(__name__)
 
+async def async_setup_entry(
+    hass: core.HomeAssistant,
+    config_entry: config_entries.ConfigEntry,
+    async_add_entities,
+):
+    _LOGGER.debug("setup sensors...")
+    _LOGGER.debug(repr(config_entry.as_dict()))  
+    config = config_entry.as_dict()["data"]
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
+    chargerName = config[CONF_NAME]
+    host = config[CONF_HOST]
+    chargerApi = GoeCharger(host)
+
+    entities = []
+    
+    attribute = "allow_charging"
+    entities.append(
+        GoeChargerSwitch(
+            hass.data[DOMAIN]["coordinator"],
+            hass,
+            chargerApi,
+            f"switch.goecharger_{chargerName}_{attribute}",
+            chargerName,
+            "Charging allowed",
+            attribute,
+        )
+    )
+    
+    async_add_entities(entities)
+
+
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up go-eCharger Switch platform."""
     if discovery_info is None:
         return
+    _LOGGER.debug("setup_platform")
 
-    serial = hass.data[DOMAIN]["serial_number"]
+    chargers = discovery_info[CONF_CHARGERS]
+    chargerApi = discovery_info[CHARGER_API]
 
-    goeCharger = GoeCharger(discovery_info[CONF_HOST])
+    entities = []
 
-    attribute = "allow_charging"
-    add_entities(
-        [
+    for charger in chargers:
+        chargerName = charger[0][CONF_NAME]
+        
+        attribute = "allow_charging"
+        entities.append(
             GoeChargerSwitch(
+                hass.data[DOMAIN]["coordinator"],
                 hass,
-                goeCharger,
-                f"switch.goecharger_{serial}_{attribute}",
+                chargerApi[chargerName],
+                f"switch.goecharger_{chargerName}_{attribute}",
+                chargerName,
                 "Charging allowed",
                 attribute,
             )
-        ]
-    )
+        )
+    async_add_entities(entities)
 
-
-class GoeChargerSwitch(SwitchEntity):
-    def __init__(self, hass, goeCharger, entity_id, name, attribute):
+class GoeChargerSwitch(CoordinatorEntity, SwitchEntity):
+    def __init__(self, coordinator, hass, goeCharger, entity_id, chargerName, name, attribute):
         """Initialize the go-eCharger sensor."""
+        super().__init__(coordinator)
         self._entity_id = entity_id
+        self._chargername = chargerName
         self._name = name
         self._attribute = attribute
         self.hass = hass
         self._goeCharger = goeCharger
         self._state = None
 
-    def turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs):
         """Turn the entity on."""
-        self._goeCharger.setAllowCharging(True)
+        await self.hass.async_add_executor_job(self._goeCharger.setAllowCharging, True)
+        await self.coordinator.async_request_refresh()
 
-    def turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs):
         """Turn the entity off."""
-        self._goeCharger.setAllowCharging(False)
+        await self.hass.async_add_executor_job(self._goeCharger.setAllowCharging, False)
+        await self.coordinator.async_request_refresh()
 
     @property
     def entity_id(self):
@@ -65,17 +106,4 @@ class GoeChargerSwitch(SwitchEntity):
     @property
     def is_on(self):
         """Return the state of the switch."""
-        return self._state
-
-    def update(self):
-        """Fetch new state data for the switch.
-        This is the only method that should fetch new data for Home Assistant.
-        """
-        if self.hass.data[DOMAIN]["age"] + 1 < utcnow().timestamp():
-            _LOGGER.debug("Updating status...")
-            fetchedStatus = self._goeCharger.requestStatus()
-            if fetchedStatus.get("car_status", "unknown") != "unknown" or not "car_status" in self.hass.data[DOMAIN]:
-                self.hass.data[DOMAIN] = fetchedStatus
-                self.hass.data[DOMAIN]["age"] = utcnow().timestamp()
-
-        self._state = True if self.hass.data[DOMAIN][self._attribute] == "on" else False
+        return True if self.coordinator.data[self._chargername][self._attribute] == "on" else False

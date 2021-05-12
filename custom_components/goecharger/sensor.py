@@ -4,10 +4,11 @@ from homeassistant.util.dt import utcnow
 from homeassistant.const import (TEMP_CELSIUS, ENERGY_KILO_WATT_HOUR)
 from homeassistant.helpers.entity import Entity
 from homeassistant.const import CONF_HOST
-
+from homeassistant import core, config_entries
 from goecharger import GoeCharger
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from . import DOMAIN
+from .const import CHARGER_API, CONF_CHARGERS, DOMAIN, CONF_NAME, CHARGER_API
 
 AMPERE = 'A'
 VOLT = 'V'
@@ -17,76 +18,158 @@ PERCENT = '%'
 
 _LOGGER = logging.getLogger(__name__)
 
+_sensorUnits = {
+    'charger_temp': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+    'charger_temp0': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+    'charger_temp1': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+    'charger_temp2': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+    'charger_temp3': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+    'p_l1': {'unit': POWER_KILO_WATT, 'name': 'Power L1'},
+    'p_l2': {'unit': POWER_KILO_WATT, 'name': 'Power L2'},
+    'p_l3': {'unit': POWER_KILO_WATT, 'name': 'Power L3'},
+    'p_n': {'unit': POWER_KILO_WATT, 'name': 'Power N'},
+    'p_all': {'unit': POWER_KILO_WATT, 'name': 'Power All'},
+    'current_session_charged_energy': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Current Session charged'},
+    'energy_total': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Total Charged'},
+    'charge_limit': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Charge limit'},
+    'u_l1': {'unit': VOLT, 'name': 'Voltage L1'},
+    'u_l2': {'unit': VOLT, 'name': 'Voltage L2'},
+    'u_l3': {'unit': VOLT, 'name': 'Voltage L3'},
+    'u_n': {'unit': VOLT, 'name': 'Voltage N'},
+    'i_l1': {'unit': AMPERE, 'name': 'Current L1'},
+    'i_l2': {'unit': AMPERE, 'name': 'Current L2'},
+    'i_l3': {'unit': AMPERE, 'name': 'Current L3'},
+    'charger_max_current': {'unit': AMPERE, 'name': 'Charger max current setting'},
+    'charger_absolute_max_current': {'unit': AMPERE, 'name': 'Charger absolute max current setting'},
+    'cable_lock_mode': {'unit': '', 'name': 'Cable lock mode'},
+    'cable_max_current': {'unit': AMPERE, 'name': 'Cable max current'},
+    'unlocked_by_card': {'unit': CARD_ID, 'name': 'Card used'},
+    'lf_l1': {'unit': PERCENT, 'name': 'Loadfactor L1'},
+    'lf_l2': {'unit': PERCENT, 'name': 'Loadfactor L2'},
+    'lf_l3': {'unit': PERCENT, 'name': 'Loadfactor L3'},
+    'lf_n': {'unit': PERCENT, 'name': 'Loadfactor N'},
+    'car_status': {'unit': '', 'name': 'Status'}
+}
 
-def setup_platform(hass, config, add_entities, discovery_info=None):
+_sensors = [ 'car_status',
+        'charger_max_current',
+        'charger_absolute_max_current',
+        'charger_err',
+        'charger_access',
+        'stop_mode',
+        'cable_lock_mode',
+        'cable_max_current',
+        'pre_contactor_l1',
+        'pre_contactor_l2',
+        'pre_contactor_l3',
+        'post_contactor_l1',
+        'post_contactor_l2',
+        'post_contactor_l3',
+        'charger_temp',
+        'charger_temp0',
+        'charger_temp1',
+        'charger_temp2',
+        'charger_temp3',
+        'current_session_charged_energy',
+        'charge_limit',
+        'adapter',
+        'unlocked_by_card',
+        'energy_total',
+        'wifi',
+
+        'u_l1',
+        'u_l2',
+        'u_l3',
+        'u_n',
+        'i_l1',
+        'i_l2',
+        'i_l3',
+        'p_l1',
+        'p_l2',
+        'p_l3',
+        'p_n',
+        'p_all',
+        'lf_l1',
+        'lf_l2',
+        'lf_l3',
+        'lf_n',
+
+        'firmware',
+        'serial_number',
+        'wifi_ssid',
+        'wifi_enabled',
+        'timezone_offset',
+        'timezone_dst_offset',]
+
+
+def _create_sensors_for_charger(chargerName, hass):
+    entities = []
+
+    for sensor in _sensors:
+        
+        _LOGGER.debug(f"adding Sensor: {sensor} for charger {chargerName}")
+        sensorUnit = _sensorUnits.get(sensor).get('unit') if _sensorUnits.get(sensor) else ''
+        sensorName = _sensorUnits.get(sensor).get('name') if _sensorUnits.get(sensor) else sensor
+        entities.append(
+            GoeChargerSensor(
+                hass.data[DOMAIN]["coordinator"], f"sensor.goecharger_{chargerName}_{sensor}", chargerName, sensorName, sensor, sensorUnit
+            )
+        )
+
+    return entities
+
+
+async def async_setup_entry(
+    hass: core.HomeAssistant,
+    config_entry: config_entries.ConfigEntry,
+    async_add_entities,
+):
+    _LOGGER.debug("setup sensors...")
+    config = config_entry.as_dict()["data"]
+
+    chargerName = config[CONF_NAME]
+    
+    async_add_entities(_create_sensors_for_charger(chargerName, hass))
+
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up go-eCharger Sensor platform."""
-
+    _LOGGER.debug("setup_platform")
     if discovery_info is None:
         return
 
-    serial = hass.data[DOMAIN]['serial_number']
-
-    goeCharger = GoeCharger(discovery_info[CONF_HOST])
+    chargers = discovery_info[CONF_CHARGERS]
 
     entities = []
+    for charger in chargers:
+        chargerName = charger[0][CONF_NAME]
 
-    sensorUnits = {
-        'charger_temp': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-        'charger_temp0': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-        'charger_temp1': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-        'charger_temp2': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-        'charger_temp3': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-        'p_l1': {'unit': POWER_KILO_WATT, 'name': 'Power L1'},
-        'p_l2': {'unit': POWER_KILO_WATT, 'name': 'Power L2'},
-        'p_l3': {'unit': POWER_KILO_WATT, 'name': 'Power L3'},
-        'p_n': {'unit': POWER_KILO_WATT, 'name': 'Power N'},
-        'p_all': {'unit': POWER_KILO_WATT, 'name': 'Power All'},
-        'current_session_charged_energy': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Current Session charged'},
-        'energy_total': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Total Charged'},
-        'charge_limit': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Charge limit'},
-        'u_l1': {'unit': VOLT, 'name': 'Voltage L1'},
-        'u_l2': {'unit': VOLT, 'name': 'Voltage L2'},
-        'u_l3': {'unit': VOLT, 'name': 'Voltage L3'},
-        'u_n': {'unit': VOLT, 'name': 'Voltage N'},
-        'i_l1': {'unit': AMPERE, 'name': 'Current L1'},
-        'i_l2': {'unit': AMPERE, 'name': 'Current L2'},
-        'i_l3': {'unit': AMPERE, 'name': 'Current L3'},
-        'charger_max_current': {'unit': AMPERE, 'name': 'Charger max current setting'},
-        'charger_absolute_max_current': {'unit': AMPERE, 'name': 'Charger absolute max current setting'},
-        'cable_lock_mode': {'unit': '', 'name': 'Cable lock mode'},
-        'cable_max_current': {'unit': AMPERE, 'name': 'Cable max current'},
-        'unlocked_by_card': {'unit': CARD_ID, 'name': 'Card used'},
-        'lf_l1': {'unit': PERCENT, 'name': 'Loadfactor L1'},
-        'lf_l2': {'unit': PERCENT, 'name': 'Loadfactor L2'},
-        'lf_l3': {'unit': PERCENT, 'name': 'Loadfactor L3'},
-        'lf_n': {'unit': PERCENT, 'name': 'Loadfactor N'},
-        'car_status': {'unit': '', 'name': 'Status'}
-    }
-
-    for sensor in hass.data[DOMAIN]:
-        if sensor not in ('allow_charging', 'age'):
-            _LOGGER.debug('adding Sensor: %s' % sensor)
-            sensorUnit = sensorUnits.get(sensor).get('unit') if sensorUnits.get(sensor) else ''
-            sensorName = sensorUnits.get(sensor).get('name') if sensorUnits.get(sensor) else sensor
-            entities.append(
-                GoeChargerSensor(
-                    hass, goeCharger, f"sensor.goecharger_{serial}_{sensor}", sensorName, sensor, sensorUnit
-                )
-            )
-
-    add_entities(entities)
+        entities.extend(_create_sensors_for_charger(chargerName, hass))
+    
+    async_add_entities(entities)
 
 
-class GoeChargerSensor(Entity):
-    def __init__(self, hass, goeCharger, entity_id, name, attribute, unit):
+class GoeChargerSensor(CoordinatorEntity, Entity):
+    def __init__(self, coordinator, entity_id, chargerName, name, attribute, unit):
         """Initialize the go-eCharger sensor."""
+
+        super().__init__(coordinator)
         self._entity_id = entity_id
+        self._chargername = chargerName
         self._name = name
         self._attribute = attribute
         self._unit = unit
-        self.hass = hass
-        self._goeCharger = goeCharger
-        self._state = None
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {
+                # Serial numbers are unique identifiers within a specific domain
+                (DOMAIN, self.unique_id)
+            },
+            "name": self.name,
+            "manufacturer": "go-e",
+            "model": "HOME",
+        }
 
     @property
     def entity_id(self):
@@ -101,22 +184,9 @@ class GoeChargerSensor(Entity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._state
+        return self.coordinator.data[self._chargername][self._attribute]
 
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
         return self._unit
-
-    def update(self):
-        """Fetch new state data for the sensor.
-        This is the only method that should fetch new data for Home Assistant.
-        """
-        if self.hass.data[DOMAIN]['age'] + 1 < utcnow().timestamp():
-            _LOGGER.debug('Updating status...')
-            fetchedStatus = self._goeCharger.requestStatus()
-            if fetchedStatus.get("car_status", "unknown") != "unknown" or not "car_status" in self.hass.data[DOMAIN]:
-                self.hass.data[DOMAIN] = fetchedStatus
-                self.hass.data[DOMAIN]['age'] = utcnow().timestamp()
-
-        self._state = self.hass.data[DOMAIN][self._attribute]
