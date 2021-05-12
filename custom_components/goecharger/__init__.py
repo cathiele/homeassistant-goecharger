@@ -96,7 +96,7 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
 
     _LOGGER.debug("async_setup")
     scan_interval = config[DOMAIN].get(CONF_SCAN_INTERVAL)
-    host = config[DOMAIN][CONF_HOST]
+    host = config[DOMAIN].get(CONF_HOST, False)
     serial = config[DOMAIN].get(CONF_SERIAL, "unknown")
 
     chargers = config[DOMAIN].get(CONF_CHARGERS, [])
