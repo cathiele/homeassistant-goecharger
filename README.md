@@ -1,6 +1,6 @@
 # Home Assistant integration for the go-eCharger (WIP)
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 [![Validate with hassfest](https://github.com/cathiele/homeassistant-goecharger/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/cathiele/homeassistant-goecharger/actions/workflows/hassfest.yaml)
 
 Integration for Homeassistant to view and Control the go-eCharger for electric Vehicles via the local ip-interface.
