@@ -33,15 +33,11 @@ git clone https://github.com/cathiele/homeassistant-goecharger.git
 
 ```yml
 goecharger:
-  host: <ip of your charger>
-```
-
-* OPTIONAL: if your charger may not be connected when your home-assistant restarts add your chargers serial number (eg. '111111') without the 'CM-02-' prefix to your `configuration.yml`:
-
-```yml
-goecharger:
-  host: <ip of your charger>
-  serial: '<serial number of your charger>'
+  chargers:
+    - name: charger1
+      host: <ip of your charger>
+    - name: charger2
+      host: <ip or hostname of charger 2>
 ```
 
 # Sample View
@@ -73,7 +69,7 @@ input_select:
 
 ## `automations.yaml`
 
-**Important: Replace `111111` with your chargers serial number.**
+**Important: Replace `111111` with your chargers name.**
 
 ```yaml
 - id: '1576914483212'
@@ -126,7 +122,7 @@ input_select:
 
 ## Lovcelace-UI Card Example
 
-**Important: Replace `111111` with your chargers serial number.**
+**Important: Replace `111111` with your chargers name.**
 
 ```yaml
 cards:
