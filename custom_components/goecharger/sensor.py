@@ -20,10 +20,10 @@ _LOGGER = logging.getLogger(__name__)
 
 _sensorUnits = {
     'charger_temp': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-    'charger_temp0': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-    'charger_temp1': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-    'charger_temp2': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-    'charger_temp3': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
+    'charger_temp0': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp 0'},
+    'charger_temp1': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp 1'},
+    'charger_temp2': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp 2'},
+    'charger_temp3': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp 3'},
     'p_l1': {'unit': POWER_KILO_WATT, 'name': 'Power L1'},
     'p_l2': {'unit': POWER_KILO_WATT, 'name': 'Power L2'},
     'p_l3': {'unit': POWER_KILO_WATT, 'name': 'Power L3'},
@@ -158,28 +158,28 @@ class GoeChargerSensor(CoordinatorEntity, Entity):
         self._name = name
         self._attribute = attribute
         self._unit = unit
-
+ 
     @property
     def device_info(self):
         return {
             "identifiers": {
                 # Serial numbers are unique identifiers within a specific domain
-                (DOMAIN, self.unique_id)
+                (DOMAIN, self._chargername)
             },
-            "name": self.name,
+            "name": self._chargername,
             "manufacturer": "go-e",
             "model": "HOME",
         }
 
     @property
-    def entity_id(self):
-        """Return the entity_id of the sensor."""
-        return self._entity_id
-
-    @property
     def name(self):
         """Return the name of the sensor."""
         return self._name
+
+    @property
+    def unique_id(self):
+        """Return the unique_id of the sensor."""
+        return f"{self._chargername}_{self._attribute}"
 
     @property
     def state(self):

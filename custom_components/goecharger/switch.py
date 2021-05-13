@@ -83,6 +83,19 @@ class GoeChargerSwitch(CoordinatorEntity, SwitchEntity):
         self._goeCharger = goeCharger
         self._state = None
 
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {
+                # Serial numbers are unique identifiers within a specific domain
+                (DOMAIN, self._chargername)
+            },
+            "name": self.name,
+            "manufacturer": "go-e",
+            "model": "HOME",
+        }
+
+
     async def async_turn_on(self, **kwargs):
         """Turn the entity on."""
         await self.hass.async_add_executor_job(self._goeCharger.setAllowCharging, True)
@@ -94,14 +107,14 @@ class GoeChargerSwitch(CoordinatorEntity, SwitchEntity):
         await self.coordinator.async_request_refresh()
 
     @property
-    def entity_id(self):
-        """Return the entity_id of the switch."""
-        return self._entity_id
-
-    @property
     def name(self):
         """Return the name of the switch."""
-        return self._name
+        return self._chargername
+
+    @property
+    def unique_id(self):
+        """Return the unique_id of the switch."""
+        return f"{self._chargername}_{self._attribute}"
 
     @property
     def is_on(self):
