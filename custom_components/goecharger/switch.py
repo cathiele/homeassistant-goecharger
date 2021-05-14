@@ -17,7 +17,7 @@ async def async_setup_entry(
     config_entry: config_entries.ConfigEntry,
     async_add_entities,
 ):
-    _LOGGER.debug("setup sensors...")
+    _LOGGER.debug("setup switch...")
     _LOGGER.debug(repr(config_entry.as_dict()))
     config = config_entry.as_dict()["data"]
 
@@ -74,7 +74,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 class GoeChargerSwitch(CoordinatorEntity, SwitchEntity):
     def __init__(self, coordinator, hass, goeCharger, entity_id, chargerName, name, attribute):
-        """Initialize the go-eCharger sensor."""
+        """Initialize the go-eCharger switch."""
         super().__init__(coordinator)
         self.entity_id = entity_id
         self._chargername = chargerName

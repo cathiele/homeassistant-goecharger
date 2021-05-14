@@ -62,6 +62,9 @@ async def async_setup_entry(hass, config):
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setup(config, "sensor")
     )
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setup(config, "switch")
+    )
     return True
 
 
