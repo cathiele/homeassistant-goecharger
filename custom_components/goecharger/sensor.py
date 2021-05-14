@@ -1,14 +1,12 @@
 """Platform for go-eCharger sensor integration."""
 import logging
-from homeassistant.util.dt import utcnow
 from homeassistant.const import (TEMP_CELSIUS, ENERGY_KILO_WATT_HOUR)
 from homeassistant.helpers.entity import Entity
-from homeassistant.const import CONF_HOST
+
 from homeassistant import core, config_entries
-from goecharger import GoeCharger
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CHARGER_API, CONF_CHARGERS, DOMAIN, CONF_NAME, CHARGER_API
+from .const import CONF_CHARGERS, DOMAIN, CONF_NAME
 
 AMPERE = 'A'
 VOLT = 'V'
@@ -51,68 +49,72 @@ _sensorUnits = {
     'car_status': {'unit': '', 'name': 'Status'}
 }
 
-_sensors = [ 'car_status',
-        'charger_max_current',
-        'charger_absolute_max_current',
-        'charger_err',
-        'charger_access',
-        'stop_mode',
-        'cable_lock_mode',
-        'cable_max_current',
-        'pre_contactor_l1',
-        'pre_contactor_l2',
-        'pre_contactor_l3',
-        'post_contactor_l1',
-        'post_contactor_l2',
-        'post_contactor_l3',
-        'charger_temp',
-        'charger_temp0',
-        'charger_temp1',
-        'charger_temp2',
-        'charger_temp3',
-        'current_session_charged_energy',
-        'charge_limit',
-        'adapter',
-        'unlocked_by_card',
-        'energy_total',
-        'wifi',
+_sensors = [
+    'car_status',
+    'charger_max_current',
+    'charger_absolute_max_current',
+    'charger_err',
+    'charger_access',
+    'stop_mode',
+    'cable_lock_mode',
+    'cable_max_current',
+    'pre_contactor_l1',
+    'pre_contactor_l2',
+    'pre_contactor_l3',
+    'post_contactor_l1',
+    'post_contactor_l2',
+    'post_contactor_l3',
+    'charger_temp',
+    'charger_temp0',
+    'charger_temp1',
+    'charger_temp2',
+    'charger_temp3',
+    'current_session_charged_energy',
+    'charge_limit',
+    'adapter',
+    'unlocked_by_card',
+    'energy_total',
+    'wifi',
 
-        'u_l1',
-        'u_l2',
-        'u_l3',
-        'u_n',
-        'i_l1',
-        'i_l2',
-        'i_l3',
-        'p_l1',
-        'p_l2',
-        'p_l3',
-        'p_n',
-        'p_all',
-        'lf_l1',
-        'lf_l2',
-        'lf_l3',
-        'lf_n',
+    'u_l1',
+    'u_l2',
+    'u_l3',
+    'u_n',
+    'i_l1',
+    'i_l2',
+    'i_l3',
+    'p_l1',
+    'p_l2',
+    'p_l3',
+    'p_n',
+    'p_all',
+    'lf_l1',
+    'lf_l2',
+    'lf_l3',
+    'lf_n',
 
-        'firmware',
-        'serial_number',
-        'wifi_ssid',
-        'wifi_enabled',
-        'timezone_offset',
-        'timezone_dst_offset',]
+    'firmware',
+    'serial_number',
+    'wifi_ssid',
+    'wifi_enabled',
+    'timezone_offset',
+    'timezone_dst_offset',
+]
 
 
 def _create_sensors_for_charger(chargerName, hass):
     entities = []
 
     for sensor in _sensors:
-        
+
         _LOGGER.debug(f"adding Sensor: {sensor} for charger {chargerName}")
         sensorUnit = _sensorUnits.get(sensor).get('unit') if _sensorUnits.get(sensor) else ''
         sensorName = _sensorUnits.get(sensor).get('name') if _sensorUnits.get(sensor) else sensor
         entities.append(
             GoeChargerSensor(
-                hass.data[DOMAIN]["coordinator"], f"sensor.goecharger_{chargerName}_{sensor}", chargerName, sensorName, sensor, sensorUnit
+                hass.data[DOMAIN]["coordinator"],
+                f"sensor.goecharger_{chargerName}_{sensor}",
+                chargerName, sensorName, sensor, sensorUnit
             )
         )
 
@@ -128,8 +130,10 @@ async def async_setup_entry(
     config = config_entry.as_dict()["data"]
 
     chargerName = config[CONF_NAME]
-    
+
+    _LOGGER.debug(f"charger name: '{chargerName}'")
     async_add_entities(_create_sensors_for_charger(chargerName, hass))
+
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up go-eCharger Sensor platform."""
@@ -142,9 +146,9 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     entities = []
     for charger in chargers:
         chargerName = charger[0][CONF_NAME]
-
+        _LOGGER.debug(f"charger name: '{chargerName}'")
         entities.extend(_create_sensors_for_charger(chargerName, hass))
-    
+
     async_add_entities(entities)
 
 
@@ -153,12 +157,12 @@ class GoeChargerSensor(CoordinatorEntity, Entity):
         """Initialize the go-eCharger sensor."""
 
         super().__init__(coordinator)
-        self._entity_id = entity_id
         self._chargername = chargerName
+        self.entity_id = entity_id
         self._name = name
         self._attribute = attribute
         self._unit = unit
- 
+
     @property
     def device_info(self):
         return {

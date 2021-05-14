@@ -7,9 +7,8 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL
 from homeassistant.core import valid_entity_id
 from homeassistant import core
-from homeassistant.util.dt import utcnow
 from homeassistant.helpers.discovery import async_load_platform
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN, CONF_SERIAL, CONF_CHARGERS, CONF_NAME, CHARGER_API
 from goecharger import GoeCharger
@@ -50,15 +49,13 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 
-
 async def async_setup_entry(hass, config):
     _LOGGER.debug("async_Setup_entry")
     _LOGGER.debug(repr(config.data))
-   
+
     name = config.data[CONF_NAME]
     charger = GoeCharger(config.data[CONF_HOST])
-    hass.data[DOMAIN]["api"][name] = charger 
-
+    hass.data[DOMAIN]["api"][name] = charger
 
     await hass.data[DOMAIN]["coordinator"].async_refresh()
 
@@ -72,6 +69,7 @@ async def async_unload_entry(hass, entry):
     _LOGGER.debug(f"Unloading charger '{entry.data[CONF_NAME]}")
     hass.data[DOMAIN]["api"].pop(entry.data[CONF_NAME])
     return True
+
 
 class ChargerStateFetcher:
     def __init__(self, hass):
@@ -95,32 +93,36 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
     """Set up go-eCharger platforms and services."""
 
     _LOGGER.debug("async_setup")
-    scan_interval = config[DOMAIN].get(CONF_SCAN_INTERVAL)
-    host = config[DOMAIN].get(CONF_HOST, False)
-    serial = config[DOMAIN].get(CONF_SERIAL, "unknown")
-
-    chargers = config[DOMAIN].get(CONF_CHARGERS, [])
-
-    if host:
-        if not serial:
-            goeCharger = GoeCharger(host)
-            status = goeCharger.requestStatus()
-            serial = status["serial_number"]
-        chargers.append([{CONF_NAME: serial, CONF_HOST: host}])
-    _LOGGER.debug(repr(chargers))
+    scan_interval = DEFAULT_UPDATE_INTERVAL
 
     hass.data[DOMAIN] = {}
     chargerApi = {}
-    for charger in chargers:
-        chargerName = charger[0][CONF_NAME]
-        host = charger[0][CONF_HOST]
-        _LOGGER.debug(f"charger: '{chargerName}' host: '{host}' ")
+    chargers = []
+    if DOMAIN in config:
+        scan_interval = config[DOMAIN].get(CONF_SCAN_INTERVAL, DEFAULT_UPDATE_INTERVAL)
 
-        goeCharger = GoeCharger(host)
-        chargerApi[chargerName] = goeCharger
+        host = config[DOMAIN].get(CONF_HOST, False)
+        serial = config[DOMAIN].get(CONF_SERIAL, "unknown")
+
+        chargers = config[DOMAIN].get(CONF_CHARGERS, [])
+
+        if host:
+            if not serial:
+                goeCharger = GoeCharger(host)
+                status = goeCharger.requestStatus()
+                serial = status["serial_number"]
+            chargers.append([{CONF_NAME: serial, CONF_HOST: host}])
+        _LOGGER.debug(repr(chargers))
+
+        for charger in chargers:
+            chargerName = charger[0][CONF_NAME]
+            host = charger[0][CONF_HOST]
+            _LOGGER.debug(f"charger: '{chargerName}' host: '{host}' ")
+
+            goeCharger = GoeCharger(host)
+            chargerApi[chargerName] = goeCharger
 
     hass.data[DOMAIN]["api"] = chargerApi
-
 
     chargeStateFecher = ChargerStateFetcher(hass)
 
@@ -137,11 +139,9 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
 
     await coordinator.async_refresh()
 
-
     async def async_handle_set_max_current(call):
         """Handle the service call to set the absolute max current."""
         chargerNameInput = call.data.get(CHARGER_NAME_ATTR, '')
-
 
         maxCurrentInput = call.data.get(
             SET_MAX_CURRENT_ATTR, 32  # TODO: dynamic based on chargers absolute_max-setting
@@ -180,9 +180,7 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
                 except KeyError:
                     _LOGGER.error(f"Charger with name '{chargerName}' not found!")
 
-        await hass.data[DOMAIN]["coordinator"].async_refresh()      
-
-
+        await hass.data[DOMAIN]["coordinator"].async_refresh()
 
     async def async_handle_set_absolute_max_current(call):
         """Handle the service call to set the absolute max current."""
@@ -207,11 +205,13 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
             absoluteMaxCurrent = 6
         if absoluteMaxCurrent > 32:
             absoluteMaxCurrent = 32
-        
+
         if len(chargerNameInput) > 0:
             _LOGGER.debug(f"set absolute_max_current for charger '{chargerNameInput}' to {absoluteMaxCurrent}")
             try:
-                await hass.async_add_executor_job(hass.data[DOMAIN]["api"][chargerNameInput].setAbsoluteMaxCurrent, absoluteMaxCurrent)
+                await hass.async_add_executor_job(
+                    hass.data[DOMAIN]["api"][chargerNameInput].setAbsoluteMaxCurrent, absoluteMaxCurrent
+                )
             except KeyError:
                 _LOGGER.error(f"Charger with name '{chargerName}' not found!")
 
@@ -219,7 +219,9 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
             for charger in hass.data[DOMAIN]["api"].keys():
                 try:
                     _LOGGER.debug(f"set absolute_max_current for charger '{charger}' to {absoluteMaxCurrent}")
-                    await hass.async_add_executor_job(hass.data[DOMAIN]["api"][charger].setAbsoluteMaxCurrent, absoluteMaxCurrent)
+                    await hass.async_add_executor_job(
+                        hass.data[DOMAIN]["api"][charger].setAbsoluteMaxCurrent, absoluteMaxCurrent
+                    )
                 except KeyError:
                     _LOGGER.error(f"Charger with name '{chargerName}' not found!")
 
@@ -253,7 +255,9 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
         if len(chargerNameInput) > 0:
             _LOGGER.debug(f"set set_cable_lock_mode for charger '{chargerNameInput}' to {cableLockModeEnum}")
             try:
-                await hass.async_add_executor_job(hass.data[DOMAIN]["api"][chargerNameInput].setCableLockMode, cableLockModeEnum)
+                await hass.async_add_executor_job(
+                    hass.data[DOMAIN]["api"][chargerNameInput].setCableLockMode, cableLockModeEnum
+                )
             except KeyError:
                 _LOGGER.error(f"Charger with name '{chargerName}' not found!")
 
@@ -266,7 +270,6 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
                     _LOGGER.error(f"Charger with name '{chargerName}' not found!")
 
         await hass.data[DOMAIN]["coordinator"].async_refresh()
-
 
     async def async_handle_set_charge_limit(call):
         """Handle the service call to set charge limit."""
@@ -312,7 +315,11 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
     hass.services.async_register(DOMAIN, "set_cable_lock_mode", async_handle_set_cable_lock_mode)
     hass.services.async_register(DOMAIN, "set_charge_limit", async_handle_set_charge_limit)
 
-    hass.async_create_task(async_load_platform(hass,"sensor", DOMAIN, {CONF_CHARGERS: chargers, CHARGER_API: chargerApi}, config))
-    hass.async_create_task(async_load_platform(hass, "switch", DOMAIN, {CONF_CHARGERS: chargers, CHARGER_API: chargerApi}, config))
+    hass.async_create_task(async_load_platform(
+        hass, "sensor", DOMAIN, {CONF_CHARGERS: chargers, CHARGER_API: chargerApi}, config)
+    )
+    hass.async_create_task(async_load_platform(
+        hass, "switch", DOMAIN, {CONF_CHARGERS: chargers, CHARGER_API: chargerApi}, config)
+    )
 
     return True
