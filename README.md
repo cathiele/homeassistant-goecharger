@@ -29,9 +29,9 @@ git clone https://github.com/cathiele/homeassistant-goecharger.git
 # cp -r custom_components/goecharger <your-ha-config-dir>/custom_components
 ```
 
-* setup your Charger in the `configuration.yml` (for always connected chargers):
+* setup your Charger in the `configuration.yaml` (for always connected chargers):
 
-```yml
+```yaml
 goecharger:
   chargers:
     - name: charger1
