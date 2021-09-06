@@ -1,10 +1,18 @@
 """Platform for go-eCharger sensor integration."""
 import logging
-from homeassistant.const import (TEMP_CELSIUS, ENERGY_KILO_WATT_HOUR)
-from homeassistant.helpers.entity import Entity
+from homeassistant.const import (
+    TEMP_CELSIUS,
+    ENERGY_KILO_WATT_HOUR
+)
 
 from homeassistant import core, config_entries
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.components.sensor import (
+    STATE_CLASS_TOTAL_INCREASING,
+    DEVICE_CLASS_ENERGY,
+    SensorEntity
+)
+
 
 from .const import CONF_CHARGERS, DOMAIN, CONF_NAME
 
@@ -47,6 +55,16 @@ _sensorUnits = {
     'lf_l3': {'unit': PERCENT, 'name': 'Loadfactor L3'},
     'lf_n': {'unit': PERCENT, 'name': 'Loadfactor N'},
     'car_status': {'unit': '', 'name': 'Status'}
+}
+
+_sensorStateClass = {
+    'energy_total': STATE_CLASS_TOTAL_INCREASING,
+    'current_session_charged_energy': STATE_CLASS_TOTAL_INCREASING
+}
+
+_sensorDeviceClass = {
+    'energy_total': DEVICE_CLASS_ENERGY,
+    'current_session_charged_energy': DEVICE_CLASS_ENERGY
 }
 
 _sensors = [
@@ -110,11 +128,13 @@ def _create_sensors_for_charger(chargerName, hass):
         _LOGGER.debug(f"adding Sensor: {sensor} for charger {chargerName}")
         sensorUnit = _sensorUnits.get(sensor).get('unit') if _sensorUnits.get(sensor) else ''
         sensorName = _sensorUnits.get(sensor).get('name') if _sensorUnits.get(sensor) else sensor
+        sensorStateClass = _sensorStateClass[sensor] if sensor in _sensorStateClass else ''
+        sensorDeviceClass = _sensorDeviceClass[sensor] if sensor in _sensorDeviceClass else ''
         entities.append(
             GoeChargerSensor(
                 hass.data[DOMAIN]["coordinator"],
                 f"sensor.goecharger_{chargerName}_{sensor}",
-                chargerName, sensorName, sensor, sensorUnit
+                chargerName, sensorName, sensor, sensorUnit, sensorStateClass, sensorDeviceClass
             )
         )
 
@@ -152,8 +172,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(entities)
 
 
-class GoeChargerSensor(CoordinatorEntity, Entity):
-    def __init__(self, coordinator, entity_id, chargerName, name, attribute, unit):
+class GoeChargerSensor(CoordinatorEntity, SensorEntity):
+    def __init__(self, coordinator, entity_id, chargerName, name, attribute, unit, stateClass, deviceClass):
         """Initialize the go-eCharger sensor."""
 
         super().__init__(coordinator)
@@ -162,6 +182,9 @@ class GoeChargerSensor(CoordinatorEntity, Entity):
         self._name = name
         self._attribute = attribute
         self._unit = unit
+        self._attr_state_class = stateClass
+        self._attr_device_class = deviceClass
+
 
     @property
     def device_info(self):
