@@ -3,7 +3,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 [![Validate with hassfest](https://github.com/cathiele/homeassistant-goecharger/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/cathiele/homeassistant-goecharger/actions/workflows/hassfest.yaml)
 
-Integration for Homeassistant to view and Control the go-eCharger for electric Vehicles via the local ip-interface.
+Integration for Homeassistant to view and Control the go-eCharger for electric Vehicles via the local ip-interface via API Version 1. In newer chargers the V1 API has to be enabled via the App first.
 
 ## Features
 - attributes from charger available as sensors
