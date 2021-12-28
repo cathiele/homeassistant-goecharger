@@ -50,9 +50,9 @@ _sensorUnits = {
     'cable_lock_mode': {'unit': '', 'name': 'Cable lock mode'},
     'cable_max_current': {'unit': AMPERE, 'name': 'Cable max current'},
     'unlocked_by_card': {'unit': CARD_ID, 'name': 'Card used'},
-    'lf_l1': {'unit': PERCENT, 'name': 'Loadfactor L1'},
-    'lf_l2': {'unit': PERCENT, 'name': 'Loadfactor L2'},
-    'lf_l3': {'unit': PERCENT, 'name': 'Loadfactor L3'},
+    'lf_l1': {'unit': PERCENT, 'name': 'Power factor L1'},
+    'lf_l2': {'unit': PERCENT, 'name': 'Power factor L2'},
+    'lf_l3': {'unit': PERCENT, 'name': 'Power factor L3'},
     'lf_n': {'unit': PERCENT, 'name': 'Loadfactor N'},
     'car_status': {'unit': '', 'name': 'Status'}
 }
