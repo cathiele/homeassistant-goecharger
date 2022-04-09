@@ -128,7 +128,7 @@ _sensors = [
 ]
 
 
-def _create_sensors_for_charger(chargerName, hass):
+def _create_sensors_for_charger(chargerName, hass, correctionFactor):
     entities = []
 
     for sensor in _sensors:
@@ -142,7 +142,7 @@ def _create_sensors_for_charger(chargerName, hass):
             GoeChargerSensor(
                 hass.data[DOMAIN]["coordinator"],
                 f"sensor.goecharger_{chargerName}_{sensor}",
-                chargerName, sensorName, sensor, sensorUnit, sensorStateClass, sensorDeviceClass
+                chargerName, sensorName, sensor, sensorUnit, sensorStateClass, sensorDeviceClass, correctionFactor
             )
         )
 
@@ -160,7 +160,8 @@ async def async_setup_entry(
     chargerName = config[CONF_NAME]
 
     _LOGGER.debug(f"charger name: '{chargerName}'")
-    async_add_entities(_create_sensors_for_charger(chargerName, hass))
+    _LOGGER.debug(f"config: '{config}'")
+    async_add_entities(_create_sensors_for_charger(chargerName, hass, config[CONF_CORRECTION_FACTOR]))
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
@@ -175,13 +176,15 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     for charger in chargers:
         chargerName = charger[0][CONF_NAME]
         _LOGGER.debug(f"charger name: '{chargerName}'")
-        entities.extend(_create_sensors_for_charger(chargerName, hass))
+        _LOGGER.debug(f"charger[0]: '{charger[0]}'")
+        
+        entities.extend(_create_sensors_for_charger(chargerName, hass, charger[0][CONF_CORRECTION_FACTOR]))
 
     async_add_entities(entities)
 
 
 class GoeChargerSensor(CoordinatorEntity, SensorEntity):
-    def __init__(self, coordinator, entity_id, chargerName, name, attribute, unit, stateClass, deviceClass):
+    def __init__(self, coordinator, entity_id, chargerName, name, attribute, unit, stateClass, deviceClass, correctionFactor):
         """Initialize the go-eCharger sensor."""
 
         super().__init__(coordinator)
@@ -192,6 +195,7 @@ class GoeChargerSensor(CoordinatorEntity, SensorEntity):
         self._unit = unit
         self._attr_state_class = stateClass
         self._attr_device_class = deviceClass
+        self.correctionFactor = correctionFactor
 
 
     @property
@@ -219,6 +223,10 @@ class GoeChargerSensor(CoordinatorEntity, SensorEntity):
     @property
     def state(self):
         """Return the state of the sensor."""
+        if (self._attribute == 'energy_total_corrected'):
+            return self.coordinator.data[self._chargername]['energy_total'] * self.correctionFactor
+        if (self._attribute == 'current_session_charged_energy_corrected'):
+            return self.coordinator.data[self._chargername]['current_session_charged_energy'] * self.correctionFactor   
         return self.coordinator.data[self._chargername][self._attribute]
 
     @property
