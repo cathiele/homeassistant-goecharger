@@ -12,6 +12,7 @@ Integration for Homeassistant to view and Control the go-eCharger for electric V
 - set max current for charging in ampere (6-32A)
 - set absolute maximum current for charging (max can not be set higher than "absolute max")
 - no cloud connection needed to control the charger - only local ip-access needed.
+- correction factor for older devices which often present 5-10% lower voltage and therefore energy values
 
 # Warning: WIP - Breaking changes possible
 This is the first version of the Integration so there are still breaking changes possible.
@@ -38,6 +39,7 @@ goecharger:
       host: <ip of your charger>
     - name: charger2
       host: <ip or hostname of charger 2>
+      correction_factor: factor for correction for total and session charged 
 ```
 
 # Sample View
@@ -133,6 +135,7 @@ entities:
   - entity: sensor.goecharger_111111_car_status
   - entity: sensor.goecharger_111111_charger_temp
   - entity: sensor.goecharger_111111_current_session_charged_energy
+  - entity: sensor.goecharger_111111_current_session_charged_energy_corrected
   - entity: sensor.goecharger_111111_p_all
   - entity: sensor.goecharger_111111_p_l1
   - entity: sensor.goecharger_111111_p_l2
@@ -144,6 +147,7 @@ entities:
   - entity: sensor.goecharger_111111_i_l2
   - entity: sensor.goecharger_111111_i_l3
   - entity: sensor.goecharger_111111_energy_total
+  - entity: sensor.goecharger_111111_energy_total_corrected
 show_header_toggle: false
 title: EV Charger (go-eCharger)
 type: entities
