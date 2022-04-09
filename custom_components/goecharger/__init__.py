@@ -10,7 +10,7 @@ from homeassistant import core
 from homeassistant.helpers.discovery import async_load_platform
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const import DOMAIN, CONF_SERIAL, CONF_CHARGERS, CONF_NAME, CHARGER_API
+from .const import DOMAIN, CONF_SERIAL, CONF_CHARGERS, CONF_CORRECTION_FACTOR, CONF_NAME, CHARGER_API
 from goecharger import GoeCharger
 
 _LOGGER = logging.getLogger(__name__)
@@ -34,11 +34,17 @@ CONFIG_SCHEMA = vol.Schema(
                         vol.All({
                             vol.Required(CONF_NAME): vol.All(cv.string),
                             vol.Required(CONF_HOST): vol.All(ipaddress.ip_address, cv.string),
+                            vol.Optional(
+                                CONF_CORRECTION_FACTOR, default=1
+                            ): vol.All(cv.float),
                         })
                     ]
                 ]),
                 vol.Optional(CONF_HOST): vol.All(ipaddress.ip_address, cv.string),
                 vol.Optional(CONF_SERIAL): vol.All(cv.string),
+                vol.Optional(
+                    CONF_CORRECTION_FACTOR, default=1
+                ): vol.All(cv.float),
                 vol.Optional(
                     CONF_SCAN_INTERVAL, default=DEFAULT_UPDATE_INTERVAL
                 ): vol.All(cv.time_period, vol.Clamp(min=MIN_UPDATE_INTERVAL)),
@@ -87,6 +93,10 @@ class ChargerStateFetcher:
             fetchedStatus = await self._hass.async_add_executor_job(goeChargers[chargerName].requestStatus)
             if fetchedStatus.get("car_status", "unknown") != "unknown":
                 data[chargerName] = fetchedStatus
+                _LOGGER.debug(f"Got raw state: '{data[chargerName]}'")
+                data[chargerName]["current_session_charged_energy_corrected"] = fetchedStatus.get("current_session_charged_energy") * CONF_CORRECTION_FACTOR
+                data[chargerName]["energy_total_corrected"] = fetchedStatus.get("energy_total") * CONF_CORRECTION_FACTOR
+                _LOGGER.debug(f"Got corrected state: '{data[chargerName]}'")
             else:
                 _LOGGER.error(f"Unable to fetch state for Charger {chargerName}")
         return data
