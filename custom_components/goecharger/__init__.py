@@ -36,7 +36,7 @@ CONFIG_SCHEMA = vol.Schema(
                             vol.Required(CONF_HOST): vol.All(ipaddress.ip_address, cv.string),
                             vol.Optional(
                                 CONF_CORRECTION_FACTOR, default=1
-                            ): vol.All(cv.float),
+                            ): vol.All(cv.positive_float),
                         })
                     ]
                 ]),
