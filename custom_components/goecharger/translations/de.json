@@ -1,0 +1,18 @@
+{
+    "config": {
+        "title": "go-eCharger hinzufügen",
+        "step": {
+            "user": {
+                "title": "go-eCharger Setup",
+			"description": "Ein Liste möglicher Konfigurationsparameter findest du hier : https://github.com/cathiele/homeassistant-goecharger",
+                "data": {
+                    "host": "Hostname oder IP-Address im lokalen Netzwerk",
+                    "name": "Im Homeassistant eindeutiger Name des Chargers",
+                    "scan_interval": "Abfrageintervall in Sekunden"
+                }
+            }
+        },
+        "abort": {
+        }
+    }
+}
