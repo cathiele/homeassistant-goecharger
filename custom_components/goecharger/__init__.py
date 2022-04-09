@@ -1,4 +1,5 @@
 """go-eCharger integration"""
+
 import voluptuous as vol
 import ipaddress
 import logging
@@ -44,7 +45,7 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(CONF_SERIAL): vol.All(cv.string),
                 vol.Optional(
                     CONF_CORRECTION_FACTOR, default=1
-                ): vol.All(cv.float),
+                ): vol.All(cv.positive_float),
                 vol.Optional(
                     CONF_SCAN_INTERVAL, default=DEFAULT_UPDATE_INTERVAL
                 ): vol.All(cv.time_period, vol.Clamp(min=MIN_UPDATE_INTERVAL)),
@@ -93,10 +94,6 @@ class ChargerStateFetcher:
             fetchedStatus = await self._hass.async_add_executor_job(goeChargers[chargerName].requestStatus)
             if fetchedStatus.get("car_status", "unknown") != "unknown":
                 data[chargerName] = fetchedStatus
-                _LOGGER.debug(f"Got raw state: '{data[chargerName]}'")
-                data[chargerName]["current_session_charged_energy_corrected"] = fetchedStatus.get("current_session_charged_energy") * CONF_CORRECTION_FACTOR
-                data[chargerName]["energy_total_corrected"] = fetchedStatus.get("energy_total") * CONF_CORRECTION_FACTOR
-                _LOGGER.debug(f"Got corrected state: '{data[chargerName]}'")
             else:
                 _LOGGER.error(f"Unable to fetch state for Charger {chargerName}")
         return data
@@ -116,6 +113,7 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
 
         host = config[DOMAIN].get(CONF_HOST, False)
         serial = config[DOMAIN].get(CONF_SERIAL, "unknown")
+        correctionFactor = config[DOMAIN].get(CONF_CORRECTION_FACTOR, 1)
 
         chargers = config[DOMAIN].get(CONF_CHARGERS, [])
 
@@ -124,7 +122,7 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
                 goeCharger = GoeCharger(host)
                 status = goeCharger.requestStatus()
                 serial = status["serial_number"]
-            chargers.append([{CONF_NAME: serial, CONF_HOST: host}])
+            chargers.append([{CONF_NAME: serial, CONF_HOST: host, CONF_CORRECTION_FACTOR: correctionFactor}])
         _LOGGER.debug(repr(chargers))
 
         for charger in chargers:
