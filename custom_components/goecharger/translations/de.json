@@ -8,7 +8,8 @@
                 "data": {
                     "host": "Hostname oder IP-Address im lokalen Netzwerk",
                     "name": "Im Homeassistant eindeutiger Name des Chargers",
-                    "scan_interval": "Abfrageintervall in Sekunden"
+                    "scan_interval": "Abfrageintervall in Sekunden",
+                    "correction_factor": "Korrekturfaktor für ungenaue Spannungsmessung"
                 }
             }
         },
