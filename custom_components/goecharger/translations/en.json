@@ -8,7 +8,8 @@
                 "data": {
                     "host": "Hostname or IP-Address in the local network",
                     "name": "uniq name of the charger",
-                    "scan_interval": "Pollinterval in seconds"
+                    "scan_interval": "Pollinterval in seconds",
+                    "correction_factor": "correction Factor for incorrect Voltage measurement"
                 }
             }
         },
