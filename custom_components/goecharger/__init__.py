@@ -1,4 +1,5 @@
 """go-eCharger integration"""
+
 import voluptuous as vol
 import ipaddress
 import logging
@@ -10,7 +11,7 @@ from homeassistant import core
 from homeassistant.helpers.discovery import async_load_platform
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const import DOMAIN, CONF_SERIAL, CONF_CHARGERS, CONF_NAME, CHARGER_API
+from .const import DOMAIN, CONF_SERIAL, CONF_CHARGERS, CONF_CORRECTION_FACTOR, CONF_NAME, CHARGER_API
 from goecharger import GoeCharger
 
 _LOGGER = logging.getLogger(__name__)
@@ -34,11 +35,17 @@ CONFIG_SCHEMA = vol.Schema(
                         vol.All({
                             vol.Required(CONF_NAME): vol.All(cv.string),
                             vol.Required(CONF_HOST): vol.All(ipaddress.ip_address, cv.string),
+                            vol.Optional(
+                                CONF_CORRECTION_FACTOR, default=1
+                            ): vol.All(cv.positive_float),
                         })
                     ]
                 ]),
                 vol.Optional(CONF_HOST): vol.All(ipaddress.ip_address, cv.string),
                 vol.Optional(CONF_SERIAL): vol.All(cv.string),
+                vol.Optional(
+                    CONF_CORRECTION_FACTOR, default=1
+                ): vol.All(cv.positive_float),
                 vol.Optional(
                     CONF_SCAN_INTERVAL, default=DEFAULT_UPDATE_INTERVAL
                 ): vol.All(cv.time_period, vol.Clamp(min=MIN_UPDATE_INTERVAL)),
@@ -106,6 +113,7 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
 
         host = config[DOMAIN].get(CONF_HOST, False)
         serial = config[DOMAIN].get(CONF_SERIAL, "unknown")
+        correctionFactor = config[DOMAIN].get(CONF_CORRECTION_FACTOR, 1)
 
         chargers = config[DOMAIN].get(CONF_CHARGERS, [])
 
@@ -114,7 +122,7 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
                 goeCharger = GoeCharger(host)
                 status = goeCharger.requestStatus()
                 serial = status["serial_number"]
-            chargers.append([{CONF_NAME: serial, CONF_HOST: host}])
+            chargers.append([{CONF_NAME: serial, CONF_HOST: host, CONF_CORRECTION_FACTOR: correctionFactor}])
         _LOGGER.debug(repr(chargers))
 
         for charger in chargers:
