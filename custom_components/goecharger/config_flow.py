@@ -4,9 +4,8 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.core import callback
-from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL, CONF_CORRECTION_FACTOR
-
-from .const import DOMAIN, CONF_NAME
+from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL
+from .const import DOMAIN, CONF_NAME, CONF_CORRECTION_FACTOR
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -38,7 +37,7 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ): int,
                     vol.Optional(
                         CONF_CORRECTION_FACTOR, default=1
-                    ): int,
+                    ): float,
                 }
             ),
         )
