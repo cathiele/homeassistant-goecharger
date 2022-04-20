@@ -1,0 +1,8 @@
+version: "3.2"
+services:
+  hass:
+    image: homeassistant/home-assistant:latest
+    volumes:
+      - ./custom_components:/config/custom_components:rw
+    ports:
+      - 8123:8123
