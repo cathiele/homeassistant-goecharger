@@ -4,5 +4,6 @@ services:
     image: homeassistant/home-assistant:latest
     volumes:
       - ./custom_components:/config/custom_components:rw
+      - ./configuration.yaml:/config/configuration.yaml:rw
     ports:
       - 8123:8123

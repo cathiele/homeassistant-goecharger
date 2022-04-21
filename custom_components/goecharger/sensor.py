@@ -159,9 +159,13 @@ async def async_setup_entry(
 
     chargerName = config[CONF_NAME]
 
+    correctionFactor = 1.0
+    if CONF_CORRECTION_FACTOR in config:
+        correctionFactor = config[CONF_CORRECTION_FACTOR]
+
     _LOGGER.debug(f"charger name: '{chargerName}'")
     _LOGGER.debug(f"config: '{config}'")
-    async_add_entities(_create_sensors_for_charger(chargerName, hass, config[CONF_CORRECTION_FACTOR]))
+    async_add_entities(_create_sensors_for_charger(chargerName, hass, correctionFactor))
 
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
@@ -177,8 +181,10 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         chargerName = charger[0][CONF_NAME]
         _LOGGER.debug(f"charger name: '{chargerName}'")
         _LOGGER.debug(f"charger[0]: '{charger[0]}'")
-        
-        entities.extend(_create_sensors_for_charger(chargerName, hass, charger[0][CONF_CORRECTION_FACTOR]))
+        correctionFactor = 1
+        if CONF_CORRECTION_FACTOR in charger[0]:
+            correctionFactor = charger[0][CONF_CORRECTION_FACTOR]
+        entities.extend(_create_sensors_for_charger(chargerName, hass, correctionFactor))
 
     async_add_entities(entities)
 

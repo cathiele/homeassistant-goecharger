@@ -36,7 +36,7 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Optional(
                         CONF_SCAN_INTERVAL, default=20
                     ): int,
-                    vol.Optional(
+                    vol.Required(
                         CONF_CORRECTION_FACTOR, default=1
                     ): float,
                 }
