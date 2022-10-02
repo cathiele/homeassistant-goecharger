@@ -161,7 +161,10 @@ async def async_setup_entry(
 
     correctionFactor = 1.0
     if CONF_CORRECTION_FACTOR in config:
-        correctionFactor = config[CONF_CORRECTION_FACTOR]
+        try:
+            correctionFactor = float(config[CONF_CORRECTION_FACTOR])
+        except:
+            correctionFactor = 1.0 
 
     _LOGGER.debug(f"charger name: '{chargerName}'")
     _LOGGER.debug(f"config: '{config}'")
@@ -181,9 +184,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         chargerName = charger[0][CONF_NAME]
         _LOGGER.debug(f"charger name: '{chargerName}'")
         _LOGGER.debug(f"charger[0]: '{charger[0]}'")
-        correctionFactor = 1
+        correctionFactor = 1.0
         if CONF_CORRECTION_FACTOR in charger[0]:
-            correctionFactor = charger[0][CONF_CORRECTION_FACTOR]
+            try:
+                correctionFactor = charger[0][CONF_CORRECTION_FACTOR]
+            except:
+                __LOGGER.warn(f"can't parse correctionFactor. Using 1.0")
+                correctionFactor = 1.0
+
         entities.extend(_create_sensors_for_charger(chargerName, hass, correctionFactor))
 
     async_add_entities(entities)

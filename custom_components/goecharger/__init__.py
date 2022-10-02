@@ -36,16 +36,16 @@ CONFIG_SCHEMA = vol.Schema(
                             vol.Required(CONF_NAME): vol.All(cv.string),
                             vol.Required(CONF_HOST): vol.All(ipaddress.ip_address, cv.string),
                             vol.Optional(
-                                CONF_CORRECTION_FACTOR, default=1
-                            ): vol.All(cv.positive_float),
+                                CONF_CORRECTION_FACTOR, default="1.0"
+                            ): vol.All(cv.string),
                         })
                     ]
                 ]),
                 vol.Optional(CONF_HOST): vol.All(ipaddress.ip_address, cv.string),
                 vol.Optional(CONF_SERIAL): vol.All(cv.string),
                 vol.Optional(
-                    CONF_CORRECTION_FACTOR, default=1
-                ): vol.All(cv.positive_float),
+                    CONF_CORRECTION_FACTOR, default="1.0"
+                ): vol.All(cv.string),
                 vol.Optional(
                     CONF_SCAN_INTERVAL, default=DEFAULT_UPDATE_INTERVAL
                 ): vol.All(cv.time_period, vol.Clamp(min=MIN_UPDATE_INTERVAL)),
@@ -113,7 +113,11 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
 
         host = config[DOMAIN].get(CONF_HOST, False)
         serial = config[DOMAIN].get(CONF_SERIAL, "unknown")
-        correctionFactor = config[DOMAIN].get(CONF_CORRECTION_FACTOR, 1)
+        try:
+            correctionFactor = float(config[DOMAIN].get(CONF_CORRECTION_FACTOR, "1.0"))
+        except:
+            _LOGGER.warn("can't convert correctionFactor, using 1.0")
+            correctionFactor = 1.0
 
         chargers = config[DOMAIN].get(CONF_CHARGERS, [])
 
