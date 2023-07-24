@@ -4,10 +4,26 @@
         "step": {
             "user": {
                 "title": "go-eCharger Setup",
-			"description": "If you need help with the configuration have a look here: https://github.com/cathiele/homeassistant-goecharger",
+			    "description": "If you need help with the configuration have a look here: https://github.com/cathiele/homeassistant-goecharger",
                 "data": {
                     "host": "Hostname or IP-Address in the local network",
                     "name": "uniq name of the charger",
+                    "scan_interval": "Pollinterval in seconds",
+                    "correction_factor": "correction Factor for incorrect Voltage measurement"
+                }
+            }
+        },
+        "abort": {
+        }
+    },
+    "options": {
+        "title": "Configure go-eCharger",
+        "step": {
+            "init": {
+                "title": "go-eCharger Configuration",
+			    "description": "If you need help with the configuration have a look here: https://github.com/cathiele/homeassistant-goecharger",
+                "data": {
+                    "host": "Hostname or IP-Address in the local network",
                     "scan_interval": "Pollinterval in seconds",
                     "correction_factor": "correction Factor for incorrect Voltage measurement"
                 }

@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -20,7 +21,8 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    async def async_get_options_flow(config_entry):
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
+        """Create the options flow."""
         return OptionsFlowHandler(config_entry)
 
     async def async_step_user(self, info):
@@ -41,4 +43,31 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ): str,
                 }
             ),
+        )
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    """Options flow for the go-eCharger"""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """"Initialize options flow"""
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> config_entries.FlowResult:
+        """Manage options for the goe-Charger component"""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_HOST): str,
+                    vol.Optional(
+                        CONF_SCAN_INTERVAL, default=20
+                    ): int,
+                    vol.Required(
+                        CONF_CORRECTION_FACTOR, default="1.0"
+                    ): str,
+                }
+            )
         )
