@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -20,7 +21,8 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    async def async_get_options_flow(config_entry):
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
+        """Create the options flow."""
         return OptionsFlowHandler(config_entry)
 
     async def async_step_user(self, info):
@@ -41,4 +43,41 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ): str,
                 }
             ),
+        )
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    """Options flow for the go-eCharger"""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """"Initialize options flow"""
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> config_entries.FlowResult:
+        """Manage options for the goe-Charger component"""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        # Gets current values from config entry. If no options are set, the values from the setup are used
+        if len(self.config_entry.options) == 0:
+            current_host = self.config_entry.data.get(CONF_HOST)
+            current_scan_interval = self.config_entry.data.get(CONF_SCAN_INTERVAL)
+            current_correction_factor = self.config_entry.data.get(CONF_CORRECTION_FACTOR)
+        else:
+            current_host = self.config_entry.options.get(CONF_HOST)
+            current_scan_interval = self.config_entry.options.get(CONF_SCAN_INTERVAL)
+            current_correction_factor = self.config_entry.options.get(CONF_CORRECTION_FACTOR)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_HOST, default=current_host): str,
+                    vol.Optional(
+                        CONF_SCAN_INTERVAL, default=current_scan_interval if current_scan_interval else 20 
+                    ): int,
+                    vol.Required(
+                        CONF_CORRECTION_FACTOR, default=current_correction_factor if current_correction_factor else "1.0"
+                    ): str,
+                }
+            )
         )

@@ -60,6 +60,8 @@ async def async_setup_entry(hass, config):
     _LOGGER.debug("async_Setup_entry")
     _LOGGER.debug(repr(config.data))
 
+    config.async_on_unload(config.add_update_listener(update_listener))
+
     name = config.data[CONF_NAME]
     charger = GoeCharger(config.data[CONF_HOST])
     hass.data[DOMAIN]["api"][name] = charger
@@ -72,6 +74,25 @@ async def async_setup_entry(hass, config):
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setup(config, "switch")
     )
+    return True
+
+async def update_listener(hass, config):
+    """Handle options update."""
+    _LOGGER.debug("update_listener")
+
+    name = config.data[CONF_NAME]
+    charger = GoeCharger(config.data[CONF_HOST])
+    hass.data[DOMAIN]["api"][name] = charger
+
+    await hass.data[DOMAIN]["coordinator"].async_refresh()
+
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setup(config, "sensor")
+    )
+    hass.async_create_task(
+        hass.config_entries.async_forward_entry_setup(config, "switch")
+    )
+
     return True
 
 
