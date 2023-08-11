@@ -9,7 +9,7 @@ from homeassistant import core, config_entries
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.sensor import (
     STATE_CLASS_TOTAL_INCREASING,
-    DEVICE_CLASS_ENERGY,
+    SensorDeviceClass,
     SensorEntity
 )
 
@@ -67,10 +67,10 @@ _sensorStateClass = {
 }
 
 _sensorDeviceClass = {
-    'energy_total': DEVICE_CLASS_ENERGY,
-    'energy_total_corrected': DEVICE_CLASS_ENERGY,
-    'current_session_charged_energy': DEVICE_CLASS_ENERGY,
-    'current_session_charged_energy_corrected': DEVICE_CLASS_ENERGY
+    'energy_total': SensorDeviceClass.ENERGY,
+    'energy_total_corrected': SensorDeviceClass.ENERGY,
+    'current_session_charged_energy': SensorDeviceClass.ENERGY,
+    'current_session_charged_energy_corrected': SensorDeviceClass.ENERGY
 }
 
 _sensors = [
