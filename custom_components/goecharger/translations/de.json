@@ -4,7 +4,7 @@
         "step": {
             "user": {
                 "title": "go-eCharger Setup",
-			"description": "Ein Liste möglicher Konfigurationsparameter findest du hier : https://github.com/cathiele/homeassistant-goecharger",
+		            "description": "Ein Liste möglicher Konfigurationsparameter findest du hier : https://github.com/cathiele/homeassistant-goecharger",
                 "data": {
                     "host": "Hostname oder IP-Address im lokalen Netzwerk",
                     "name": "Im Homeassistant eindeutiger Name des Chargers",
@@ -14,6 +14,64 @@
             }
         },
         "abort": {
+        }
+    },
+    "services": {
+        "set_max_current": {
+            "name": "Setze maximalen Strom",
+            "description": "Setzt den maximalen Ladestrom in Ampere",
+            "fields": {
+                "charger_name": {
+                    "name": "Ladername",
+                    "description": "Name des zu ändernden Chargers (Wenn kein name angegeben wird werden alle geändert)"
+                },
+                "max_current": {
+                    "name": "Maximaler Strom",
+                    "description": "maximaler Strom in Ampere (6-32)"
+                }
+            }
+        },
+        "set_cable_lock_mode": {
+            "name": "Setze Kabellock-Modus",
+            "description": "Setzt das Verhalten des Ladekabels",
+            "fields": {
+                "charger_name": {
+                    "name": "Ladername",
+                    "description": "Name des zu ändernden Chargers (Wenn kein name angegeben wird werden alle geändert)"
+                },
+                "cable_lock_mode": {
+                    "name": "Gewünschter Modus",
+                    "description": "Gewünschtes Verhalten (0=verriegelt wenn Auto verbunden, 1=Entriegeln wenn Ladevorgang beendet, 2=immer verriegelt)"
+                }
+            }
+        },
+        "set_absolute_max_current": {
+            "name": "Setze absolut maximalen ladestrom",
+            "description": "Setzt den Wert des absoluten maximalen Ladestroms des Laders in Ampere",
+            "fields": {
+                "charger_name": {
+                    "name": "Ladername",
+                    "description": "Name des zu ändernden Chargers (Wenn kein name angegeben wird werden alle geändert)"
+                },
+                "charger_absolute_max_current": {
+                    "name": "Absolut maximaler Ladestrom",
+                    "description": "Absolut maximaler Ladestrom in Ampere (6-32)"
+                }
+            }
+        },
+        "set_charge_limit": {
+            "name": "Setze Ladelimit",
+            "description": "Setzt das Ladelimit in kWh",
+            "fields": {
+                "charger_name": {
+                    "name": "Ladername",
+                    "description": "Name des zu ändernden Chargers (Wenn kein name angegeben wird werden alle geändert)"
+                },
+                "charge_limit": {
+                    "name": "Ladelimit",
+                    "description": "Ladelimit in kWh, z.B. '2.5'"
+                }
+            }
         }
     }
 }

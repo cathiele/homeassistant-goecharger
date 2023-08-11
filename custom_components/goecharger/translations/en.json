@@ -4,7 +4,7 @@
         "step": {
             "user": {
                 "title": "go-eCharger Setup",
-			"description": "If you need help with the configuration have a look here: https://github.com/cathiele/homeassistant-goecharger",
+			          "description": "If you need help with the configuration have a look here: https://github.com/cathiele/homeassistant-goecharger",
                 "data": {
                     "host": "Hostname or IP-Address in the local network",
                     "name": "uniq name of the charger",
@@ -14,6 +14,64 @@
             }
         },
         "abort": {
+        }
+    },
+    "services": {
+        "set_max_current": {
+            "name": "Set max current",
+            "description": "Sets the maximum current in Ampere of the Charger.",
+            "fields": {
+                "charger_name": {
+                    "name": "Charger name",
+                    "description": "name of the charger to update (if not specified all chargers will be changed)"
+                },
+                "max_current": {
+                    "name": "Maximum current",
+                    "description": "current to be set (6-32)"
+                }
+            }
+        },
+        "set_cable_lock_mode": {
+            "name": "Set cable lock mode",
+            "description": "Sets the cable lock mode of the Charger.",
+            "fields": {
+                "charger_name": {
+                    "name": "Charger name",
+                    "description": "name of the charger to update (if not specified all chargers will be changed)"
+                },
+                "cable_lock_mode": {
+                    "name": "Cable lock mode",
+                    "description": "lock mode for the cable connected to the charger (0=locked while car connected, 1=unlock after charging finished, 2=always locked)"
+                }
+            }
+        },
+        "set_absolute_max_current": {
+            "name": "Set absolute max current",
+            "description": "Sets the absolute maximum current in Ampere of the Charger.",
+            "fields": {
+                "charger_name": {
+                    "name": "Charger name",
+                    "description": "name of the charger to update (if not specified all chargers will be changed)"
+                },
+                "charger_absolute_max_current": {
+                    "name": "absolute max charge current",
+                    "description": "absolute maximum current to be set (6-32)"
+                }
+            }
+        },
+        "set_charge_limit": {
+            "name": "Set charge limit",
+            "description": "Sets the charge limit in kWh of the Charger.",
+            "fields": {
+                "charger_name": {
+                    "name": "Charger name",
+                    "description": "name of the charger to update (if not specified all chargers will be changed)"
+                },
+                "charge_limit": {
+                    "name": "charge limit",
+                    "description": "charge limit in kWh example '2.5'"
+                }
+            }
         }
     }
 }
