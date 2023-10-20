@@ -183,7 +183,7 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
         if len(chargerNameInput) > 0:
             _LOGGER.debug(f"set max_current for charger '{chargerNameInput}' to {maxCurrent}")
             try:
-                await hass.async_add_executor_job(hass.data[DOMAIN]["api"][chargerNameInput].setTmpMaxCurrent, maxCurrent)
+                await hass.async_add_executor_job(hass.data[DOMAIN]["api"][chargerNameInput].setMaxCurrent, maxCurrent)
             except KeyError:
                 _LOGGER.error(f"Charger with name '{chargerName}' not found!")
 
@@ -191,7 +191,7 @@ async def async_setup(hass: core.HomeAssistant, config: dict) -> bool:
             for charger in hass.data[DOMAIN]["api"].keys():
                 try:
                     _LOGGER.debug(f"set max_current for charger '{charger}' to {maxCurrent}")
-                    await hass.async_add_executor_job(hass.data[DOMAIN]["api"][charger].setTmpMaxCurrent, maxCurrent)
+                    await hass.async_add_executor_job(hass.data[DOMAIN]["api"][charger].setMaxCurrent, maxCurrent)
                 except KeyError:
                     _LOGGER.error(f"Charger with name '{chargerName}' not found!")
 
