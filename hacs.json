@@ -1,5 +1,5 @@
 {
-  "name": "go-eCharger-test",
+  "name": "go-eCharger",
   "content_in_root": false,
   "render_readme": true,
   "domains": ["switch", "sensor"]
