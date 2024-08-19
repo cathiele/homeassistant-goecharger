@@ -7,15 +7,14 @@ from homeassistant.const import (
     UnitOfEnergy,
     UnitOfPower,
     UnitOfTemperature,
-    
 )
 
 from homeassistant import core, config_entries
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.sensor import (
-    STATE_CLASS_TOTAL_INCREASING,
     SensorDeviceClass,
-    SensorEntity
+    SensorEntity,
+    SensorStateClass
 )
 
 
@@ -61,10 +60,10 @@ _sensorUnits = {
 }
 
 _sensorStateClass = {
-    'energy_total': STATE_CLASS_TOTAL_INCREASING,
-    'energy_total_corrected': STATE_CLASS_TOTAL_INCREASING,
-    'current_session_charged_energy': STATE_CLASS_TOTAL_INCREASING,
-    'current_session_charged_energy_corrected': STATE_CLASS_TOTAL_INCREASING
+    'energy_total': SensorStateClass.TOTAL_INCREASING,
+    'energy_total_corrected': SensorStateClass.TOTAL_INCREASING,
+    'current_session_charged_energy': SensorStateClass.TOTAL_INCREASING,
+    'current_session_charged_energy_corrected': SensorStateClass.TOTAL_INCREASING
 }
 
 _sensorDeviceClass = {
