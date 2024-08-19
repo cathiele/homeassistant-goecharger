@@ -1,7 +1,7 @@
 """Platform for go-eCharger sensor integration."""
 import logging
 from homeassistant.const import (
-    PERCENTAGE,
+    PERCENTAGEX,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfEnergy,
