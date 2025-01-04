@@ -1,14 +1,14 @@
 """Platform for go-eCharger sensor integration."""
 import logging
 from homeassistant.const import (
-    TEMP_CELSIUS,
-    ENERGY_KILO_WATT_HOUR
+    UnitOfTemperature,
+    UnitOfEnergy
 )
 
 from homeassistant import core, config_entries
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.sensor import (
-    STATE_CLASS_TOTAL_INCREASING,
+    SensorStateClass,
     SensorDeviceClass,
     SensorEntity
 )
@@ -18,28 +18,28 @@ from .const import CONF_CHARGERS, DOMAIN, CONF_NAME, CONF_CORRECTION_FACTOR
 
 AMPERE = 'A'
 VOLT = 'V'
-POWER_KILO_WATT = 'kW'
+UnitOfEnergy.KILO_WATT = 'kW'
 CARD_ID = 'Card ID'
 PERCENT = '%'
 
 _LOGGER = logging.getLogger(__name__)
 
 _sensorUnits = {
-    'charger_temp': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp'},
-    'charger_temp0': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp 0'},
-    'charger_temp1': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp 1'},
-    'charger_temp2': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp 2'},
-    'charger_temp3': {'unit': TEMP_CELSIUS, 'name': 'Charger Temp 3'},
-    'p_l1': {'unit': POWER_KILO_WATT, 'name': 'Power L1'},
-    'p_l2': {'unit': POWER_KILO_WATT, 'name': 'Power L2'},
-    'p_l3': {'unit': POWER_KILO_WATT, 'name': 'Power L3'},
-    'p_n': {'unit': POWER_KILO_WATT, 'name': 'Power N'},
-    'p_all': {'unit': POWER_KILO_WATT, 'name': 'Power All'},
-    'current_session_charged_energy': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Current Session charged'},
-    'current_session_charged_energy_corrected': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Current Session charged corrected'},
-    'energy_total': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Total Charged'},
-    'energy_total_corrected': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Total Charged corrected'},
-    'charge_limit': {'unit': ENERGY_KILO_WATT_HOUR, 'name': 'Charge limit'},
+    'charger_temp': {'unit': UnitOfTemperature.CELSIUS, 'name': 'Charger Temp'},
+    'charger_temp0': {'unit': UnitOfTemperature.CELSIUS, 'name': 'Charger Temp 0'},
+    'charger_temp1': {'unit': UnitOfTemperature.CELSIUS, 'name': 'Charger Temp 1'},
+    'charger_temp2': {'unit': UnitOfTemperature.CELSIUS, 'name': 'Charger Temp 2'},
+    'charger_temp3': {'unit': UnitOfTemperature.CELSIUS, 'name': 'Charger Temp 3'},
+    'p_l1': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power L1'},
+    'p_l2': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power L2'},
+    'p_l3': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power L3'},
+    'p_n': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power N'},
+    'p_all': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power All'},
+    'current_session_charged_energy': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Current Session charged'},
+    'current_session_charged_energy_corrected': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Current Session charged corrected'},
+    'energy_total': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Total Charged'},
+    'energy_total_corrected': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Total Charged corrected'},
+    'charge_limit': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Charge limit'},
     'u_l1': {'unit': VOLT, 'name': 'Voltage L1'},
     'u_l2': {'unit': VOLT, 'name': 'Voltage L2'},
     'u_l3': {'unit': VOLT, 'name': 'Voltage L3'},
@@ -60,10 +60,10 @@ _sensorUnits = {
 }
 
 _sensorStateClass = {
-    'energy_total': STATE_CLASS_TOTAL_INCREASING,
-    'energy_total_corrected': STATE_CLASS_TOTAL_INCREASING,
-    'current_session_charged_energy': STATE_CLASS_TOTAL_INCREASING,
-    'current_session_charged_energy_corrected': STATE_CLASS_TOTAL_INCREASING
+    'energy_total': SensorStateClass.TOTAL_INCREASING,
+    'energy_total_corrected': SensorStateClass.TOTAL_INCREASING,
+    'current_session_charged_energy': SensorStateClass.TOTAL_INCREASING,
+    'current_session_charged_energy_corrected': SensorStateClass.TOTAL_INCREASING
 }
 
 _sensorDeviceClass = {
