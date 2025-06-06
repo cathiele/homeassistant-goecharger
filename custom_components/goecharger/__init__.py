@@ -67,10 +67,10 @@ async def async_setup_entry(hass, config):
     await hass.data[DOMAIN]["coordinator"].async_refresh()
 
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(config, "sensor")
+        hass.config_entries.async_forward_entry_setups(config, ["sensor"])
     )
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(config, "switch")
+        hass.config_entries.async_forward_entry_setups(config, ["switch"])
     )
     return True
 
