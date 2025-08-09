@@ -68,10 +68,37 @@ _sensorStateClass = {
 
 _sensorDeviceClass = {
     'car_status': SensorDeviceClass.ENUM,
+    'charger_max_current': SensorDeviceClass.CURRENT,
+    'charger_absolute_max_current': SensorDeviceClass.CURRENT,
+    'charger_access': SensorDeviceClass.ENUM,
+    'stop_mode': SensorDeviceClass.ENUM,
+    'cable_max_current': SensorDeviceClass.CURRENT,
+    'charger_temp': SensorDeviceClass.TEMPERATURE,
+    'charger_temp0': SensorDeviceClass.TEMPERATURE,
+    'charger_temp1': SensorDeviceClass.TEMPERATURE,
+    'charger_temp2': SensorDeviceClass.TEMPERATURE,
+    'charger_temp3': SensorDeviceClass.TEMPERATURE,
+    'current_session_charged_energy': SensorDeviceClass.ENERGY,
+    'current_session_charged_energy_corrected': SensorDeviceClass.ENERGY,
+    'charge_limit': SensorDeviceClass.ENERGY,
     'energy_total': SensorDeviceClass.ENERGY,
     'energy_total_corrected': SensorDeviceClass.ENERGY,
-    'current_session_charged_energy': SensorDeviceClass.ENERGY,
-    'current_session_charged_energy_corrected': SensorDeviceClass.ENERGY
+    'u_l1': SensorDeviceClass.VOLTAGE,
+    'u_l2': SensorDeviceClass.VOLTAGE,
+    'u_l3': SensorDeviceClass.VOLTAGE,
+    'u_n': SensorDeviceClass.VOLTAGE,
+    'i_l1': SensorDeviceClass.CURRENT,
+    'i_l2': SensorDeviceClass.CURRENT,
+    'i_l3': SensorDeviceClass.CURRENT,
+    'p_l1': SensorDeviceClass.POWER,
+    'p_l2': SensorDeviceClass.POWER,
+    'p_l3': SensorDeviceClass.POWER,
+    'p_n': SensorDeviceClass.POWER,
+    'p_all': SensorDeviceClass.POWER,
+    'lf_l1': SensorDeviceClass.POWER_FACTOR,
+    'lf_l2': SensorDeviceClass.POWER_FACTOR,
+    'lf_l3': SensorDeviceClass.POWER_FACTOR,
+    'lf_n': SensorDeviceClass.POWER_FACTOR
 }
 
 _sensors = [
