@@ -49,14 +49,14 @@ _sensorUnits = {
     'i_l3': {'unit': AMPERE, 'name': 'Current L3'},
     'charger_max_current': {'unit': AMPERE, 'name': 'Charger max current setting'},
     'charger_absolute_max_current': {'unit': AMPERE, 'name': 'Charger absolute max current setting'},
-    'cable_lock_mode': {'unit': '', 'name': 'Cable lock mode'},
+    'cable_lock_mode': {'unit': None, 'name': 'Cable lock mode'},
     'cable_max_current': {'unit': AMPERE, 'name': 'Cable max current'},
     'unlocked_by_card': {'unit': CARD_ID, 'name': 'Card used'},
     'lf_l1': {'unit': PERCENT, 'name': 'Power factor L1'},
     'lf_l2': {'unit': PERCENT, 'name': 'Power factor L2'},
     'lf_l3': {'unit': PERCENT, 'name': 'Power factor L3'},
     'lf_n': {'unit': PERCENT, 'name': 'Loadfactor N'},
-    'car_status': {'unit': '', 'name': 'Status'}
+    'car_status': {'unit': None, 'name': 'Status'}
 }
 
 _sensorStateClass = {
@@ -134,10 +134,10 @@ def _create_sensors_for_charger(chargerName, hass, correctionFactor):
     for sensor in _sensors:
 
         _LOGGER.debug(f"adding Sensor: {sensor} for charger {chargerName}")
-        sensorUnit = _sensorUnits.get(sensor).get('unit') if _sensorUnits.get(sensor) else ''
+        sensorUnit = _sensorUnits.get(sensor).get('unit') if _sensorUnits.get(sensor) else None
         sensorName = _sensorUnits.get(sensor).get('name') if _sensorUnits.get(sensor) else sensor
-        sensorStateClass = _sensorStateClass[sensor] if sensor in _sensorStateClass else ''
-        sensorDeviceClass = _sensorDeviceClass[sensor] if sensor in _sensorDeviceClass else ''
+        sensorStateClass = _sensorStateClass[sensor] if sensor in _sensorStateClass else None
+        sensorDeviceClass = _sensorDeviceClass[sensor] if sensor in _sensorDeviceClass else None
         entities.append(
             GoeChargerSensor(
                 hass.data[DOMAIN]["coordinator"],
