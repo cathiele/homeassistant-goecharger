@@ -2,7 +2,11 @@
 import logging
 from homeassistant.const import (
     UnitOfTemperature,
-    UnitOfEnergy
+    UnitOfEnergy,
+    UnitOfElectricCurrent,
+    UnitOfElectricPotential,
+    UnitOfPower,
+    PERCENTAGE
 )
 
 from homeassistant import core, config_entries
@@ -16,11 +20,7 @@ from homeassistant.components.sensor import (
 
 from .const import CONF_CHARGERS, DOMAIN, CONF_NAME, CONF_CORRECTION_FACTOR
 
-AMPERE = 'A'
-VOLT = 'V'
-UnitOfEnergy.KILO_WATT = 'kW'
 CARD_ID = 'Card ID'
-PERCENT = '%'
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,33 +30,33 @@ _sensorUnits = {
     'charger_temp1': {'unit': UnitOfTemperature.CELSIUS, 'name': 'Charger Temp 1'},
     'charger_temp2': {'unit': UnitOfTemperature.CELSIUS, 'name': 'Charger Temp 2'},
     'charger_temp3': {'unit': UnitOfTemperature.CELSIUS, 'name': 'Charger Temp 3'},
-    'p_l1': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power L1'},
-    'p_l2': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power L2'},
-    'p_l3': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power L3'},
-    'p_n': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power N'},
-    'p_all': {'unit': UnitOfEnergy.KILO_WATT, 'name': 'Power All'},
+    'p_l1': {'unit': UnitOfPower.KILO_WATT, 'name': 'Power L1'},
+    'p_l2': {'unit': UnitOfPower.KILO_WATT, 'name': 'Power L2'},
+    'p_l3': {'unit': UnitOfPower.KILO_WATT, 'name': 'Power L3'},
+    'p_n': {'unit': UnitOfPower.KILO_WATT, 'name': 'Power N'},
+    'p_all': {'unit': UnitOfPower.KILO_WATT, 'name': 'Power All'},
     'current_session_charged_energy': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Current Session charged'},
     'current_session_charged_energy_corrected': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Current Session charged corrected'},
     'energy_total': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Total Charged'},
     'energy_total_corrected': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Total Charged corrected'},
     'charge_limit': {'unit': UnitOfEnergy.KILO_WATT_HOUR, 'name': 'Charge limit'},
-    'u_l1': {'unit': VOLT, 'name': 'Voltage L1'},
-    'u_l2': {'unit': VOLT, 'name': 'Voltage L2'},
-    'u_l3': {'unit': VOLT, 'name': 'Voltage L3'},
-    'u_n': {'unit': VOLT, 'name': 'Voltage N'},
-    'i_l1': {'unit': AMPERE, 'name': 'Current L1'},
-    'i_l2': {'unit': AMPERE, 'name': 'Current L2'},
-    'i_l3': {'unit': AMPERE, 'name': 'Current L3'},
-    'charger_max_current': {'unit': AMPERE, 'name': 'Charger max current setting'},
-    'charger_absolute_max_current': {'unit': AMPERE, 'name': 'Charger absolute max current setting'},
-    'cable_lock_mode': {'unit': '', 'name': 'Cable lock mode'},
-    'cable_max_current': {'unit': AMPERE, 'name': 'Cable max current'},
+    'u_l1': {'unit': UnitOfElectricPotential.VOLT, 'name': 'Voltage L1'},
+    'u_l2': {'unit': UnitOfElectricPotential.VOLT, 'name': 'Voltage L2'},
+    'u_l3': {'unit': UnitOfElectricPotential.VOLT, 'name': 'Voltage L3'},
+    'u_n': {'unit': UnitOfElectricPotential.VOLT, 'name': 'Voltage N'},
+    'i_l1': {'unit': UnitOfElectricCurrent.AMPERE, 'name': 'Current L1'},
+    'i_l2': {'unit': UnitOfElectricCurrent.AMPERE, 'name': 'Current L2'},
+    'i_l3': {'unit': UnitOfElectricCurrent.AMPERE, 'name': 'Current L3'},
+    'charger_max_current': {'unit': UnitOfElectricCurrent.AMPERE, 'name': 'Charger max current setting'},
+    'charger_absolute_max_current': {'unit': UnitOfElectricCurrent.AMPERE, 'name': 'Charger absolute max current setting'},
+    'cable_lock_mode': {'unit': None, 'name': 'Cable lock mode'},
+    'cable_max_current': {'unit': UnitOfElectricCurrent.AMPERE, 'name': 'Cable max current'},
     'unlocked_by_card': {'unit': CARD_ID, 'name': 'Card used'},
-    'lf_l1': {'unit': PERCENT, 'name': 'Power factor L1'},
-    'lf_l2': {'unit': PERCENT, 'name': 'Power factor L2'},
-    'lf_l3': {'unit': PERCENT, 'name': 'Power factor L3'},
-    'lf_n': {'unit': PERCENT, 'name': 'Loadfactor N'},
-    'car_status': {'unit': '', 'name': 'Status'}
+    'lf_l1': {'unit': PERCENTAGE, 'name': 'Power factor L1'},
+    'lf_l2': {'unit': PERCENTAGE, 'name': 'Power factor L2'},
+    'lf_l3': {'unit': PERCENTAGE, 'name': 'Power factor L3'},
+    'lf_n': {'unit': PERCENTAGE, 'name': 'Loadfactor N'},
+    'car_status': {'unit': None, 'name': 'Status'}
 }
 
 _sensorStateClass = {
@@ -67,10 +67,38 @@ _sensorStateClass = {
 }
 
 _sensorDeviceClass = {
+    'car_status': SensorDeviceClass.ENUM,
+    'charger_max_current': SensorDeviceClass.CURRENT,
+    'charger_absolute_max_current': SensorDeviceClass.CURRENT,
+    'charger_access': SensorDeviceClass.ENUM,
+    'stop_mode': SensorDeviceClass.ENUM,
+    'cable_max_current': SensorDeviceClass.CURRENT,
+    'charger_temp': SensorDeviceClass.TEMPERATURE,
+    'charger_temp0': SensorDeviceClass.TEMPERATURE,
+    'charger_temp1': SensorDeviceClass.TEMPERATURE,
+    'charger_temp2': SensorDeviceClass.TEMPERATURE,
+    'charger_temp3': SensorDeviceClass.TEMPERATURE,
+    'current_session_charged_energy': SensorDeviceClass.ENERGY,
+    'current_session_charged_energy_corrected': SensorDeviceClass.ENERGY,
+    'charge_limit': SensorDeviceClass.ENERGY,
     'energy_total': SensorDeviceClass.ENERGY,
     'energy_total_corrected': SensorDeviceClass.ENERGY,
-    'current_session_charged_energy': SensorDeviceClass.ENERGY,
-    'current_session_charged_energy_corrected': SensorDeviceClass.ENERGY
+    'u_l1': SensorDeviceClass.VOLTAGE,
+    'u_l2': SensorDeviceClass.VOLTAGE,
+    'u_l3': SensorDeviceClass.VOLTAGE,
+    'u_n': SensorDeviceClass.VOLTAGE,
+    'i_l1': SensorDeviceClass.CURRENT,
+    'i_l2': SensorDeviceClass.CURRENT,
+    'i_l3': SensorDeviceClass.CURRENT,
+    'p_l1': SensorDeviceClass.POWER,
+    'p_l2': SensorDeviceClass.POWER,
+    'p_l3': SensorDeviceClass.POWER,
+    'p_n': SensorDeviceClass.POWER,
+    'p_all': SensorDeviceClass.POWER,
+    'lf_l1': SensorDeviceClass.POWER_FACTOR,
+    'lf_l2': SensorDeviceClass.POWER_FACTOR,
+    'lf_l3': SensorDeviceClass.POWER_FACTOR,
+    'lf_n': SensorDeviceClass.POWER_FACTOR
 }
 
 _sensors = [
@@ -134,10 +162,10 @@ def _create_sensors_for_charger(chargerName, hass, correctionFactor):
     for sensor in _sensors:
 
         _LOGGER.debug(f"adding Sensor: {sensor} for charger {chargerName}")
-        sensorUnit = _sensorUnits.get(sensor).get('unit') if _sensorUnits.get(sensor) else ''
+        sensorUnit = _sensorUnits.get(sensor).get('unit') if _sensorUnits.get(sensor) else None
         sensorName = _sensorUnits.get(sensor).get('name') if _sensorUnits.get(sensor) else sensor
-        sensorStateClass = _sensorStateClass[sensor] if sensor in _sensorStateClass else ''
-        sensorDeviceClass = _sensorDeviceClass[sensor] if sensor in _sensorDeviceClass else ''
+        sensorStateClass = _sensorStateClass[sensor] if sensor in _sensorStateClass else None
+        sensorDeviceClass = _sensorDeviceClass[sensor] if sensor in _sensorDeviceClass else None
         entities.append(
             GoeChargerSensor(
                 hass.data[DOMAIN]["coordinator"],
