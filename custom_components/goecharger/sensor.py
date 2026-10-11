@@ -6,6 +6,7 @@ from homeassistant.const import (
 )
 
 from homeassistant import core, config_entries
+from homeassistant.util import slugify
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.components.sensor import (
     SensorStateClass,
@@ -141,7 +142,7 @@ def _create_sensors_for_charger(chargerName, hass, correctionFactor):
         entities.append(
             GoeChargerSensor(
                 hass.data[DOMAIN]["coordinator"],
-                f"sensor.goecharger_{chargerName}_{sensor}",
+                f"sensor.goecharger_{slugify(chargerName)}_{sensor}",
                 chargerName, sensorName, sensor, sensorUnit, sensorStateClass, sensorDeviceClass, correctionFactor
             )
         )
