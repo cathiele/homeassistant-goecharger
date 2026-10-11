@@ -4,6 +4,7 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import CONF_HOST
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant import core, config_entries
+from homeassistant.util import slugify
 
 from goecharger import GoeCharger
 
@@ -33,7 +34,7 @@ async def async_setup_entry(
             hass.data[DOMAIN]["coordinator"],
             hass,
             chargerApi,
-            f"switch.goecharger_{chargerName}_{attribute}",
+            f"switch.goecharger_{slugify(chargerName)}_{attribute}",
             chargerName,
             "Charging allowed",
             attribute,
@@ -63,7 +64,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
                 hass.data[DOMAIN]["coordinator"],
                 hass,
                 chargerApi[chargerName],
-                f"switch.goecharger_{chargerName}_{attribute}",
+                f"switch.goecharger_{slugify(chargerName)}_{attribute}",
                 chargerName,
                 "Charging allowed",
                 attribute,
